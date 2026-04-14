@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "ResumeAI 1-Click Match",
+  "version": "1.0.0",
+  "description": "Instantly get an ATS match score for job descriptions on LinkedIn, Indeed and Glassdoor.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Analyze Job Role"
+  },
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "http://localhost:3000/*",
+    "https://*/*"
+  ]
+}

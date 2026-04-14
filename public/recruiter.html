@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Recruiter Dashboard — Upload job description and rank multiple candidates using AI-powered resume analysis.">
+    <title>ResumeAI — Recruiter Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/recruiter.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-grid"></div>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="bg-glow bg-glow-3"></div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="header-inner">
+            <div class="logo">
+                <a href="/" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+                    <div class="logo-icon">
+                        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                            <rect x="2" y="4" width="18" height="22" rx="2" stroke="url(#logoGrad)" stroke-width="2"/>
+                            <path d="M7 10h8M7 14h10M7 18h6" stroke="url(#logoGrad)" stroke-width="1.5" stroke-linecap="round"/>
+                            <circle cx="21" cy="7" r="5" fill="url(#logoGrad2)" opacity="0.9"/>
+                            <path d="M19.5 7l1 1 2-2" stroke="#0a0e27" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <defs>
+                                <linearGradient id="logoGrad" x1="0" y1="0" x2="28" y2="28"><stop stop-color="#4f8fff"/><stop offset="1" stop-color="#00d4ff"/></linearGradient>
+                                <linearGradient id="logoGrad2" x1="16" y1="2" x2="26" y2="12"><stop stop-color="#00e676"/><stop offset="1" stop-color="#69f0ae"/></linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <span class="logo-text">Resume<span class="logo-highlight">AI</span></span>
+                </a>
+            </div>
+            <div class="header-right">
+                <nav class="nav-tabs">
+                    <a href="/" class="nav-tab">👤 Candidate</a>
+                    <a href="/recruiter.html" class="nav-tab active">🏢 Recruiter</a>
+                </nav>
+                <button class="theme-toggle" id="theme-toggle" title="Toggle Light/Dark Theme">
+                    <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                    <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="recruiter-main">
+        <!-- Hero -->
+        <section class="rec-hero">
+            <div class="rec-hero-chip">🏢 Recruiter Dashboard</div>
+            <h1>Rank Candidates <span class="gradient-text">with AI</span></h1>
+            <p>Upload a job description and multiple resumes. Our AI engine will analyze each candidate and rank them by composite score — semantic match, ATS score, and skill coverage.</p>
+        </section>
+
+        <!-- Upload Section -->
+        <section id="rec-upload-section">
+            <div class="rec-upload-grid">
+                <!-- Job Description -->
+                <div class="rec-upload-card">
+                    <h3>📋 Job Description</h3>
+                    <div class="rec-card-subtitle">Paste the full job description for AI matching</div>
+                    <textarea id="rec-jd-textarea" class="rec-jd-textarea" placeholder="Paste the job description here...&#10;&#10;Example:&#10;We are looking for a Senior Full Stack Developer with 5+ years of experience in React, Node.js, and cloud technologies. The ideal candidate should have experience with REST APIs, microservices, and CI/CD pipelines..." rows="8"></textarea>
+                </div>
+
+                <!-- Resume Upload -->
+                <div class="rec-upload-card">
+                    <h3>📄 Upload Resumes</h3>
+                    <div class="rec-card-subtitle">Upload up to 10 candidate resumes (PDF, DOCX, TXT)</div>
+                    <div class="rec-dropzone" id="rec-dropzone">
+                        <div class="rec-dropzone-icon">📁</div>
+                        <div class="rec-dropzone-text">Drag & drop resumes here</div>
+                        <div class="rec-dropzone-sub">or click to browse • Max 10 files</div>
+                    </div>
+                    <input type="file" id="rec-file-input" accept=".pdf,.docx,.txt" multiple hidden>
+                    <div class="rec-file-list" id="rec-file-list"></div>
+                </div>
+            </div>
+
+            <!-- Analyze Button -->
+            <div class="rec-analyze-wrapper">
+                <button class="btn-rec-analyze" id="btn-rec-analyze" disabled>
+                    🚀 Analyze & Rank Candidates
+                </button>
+                <div class="rec-file-counter" id="rec-file-counter">0/10 resumes selected</div>
+            </div>
+        </section>
+
+        <!-- Loading -->
+        <section id="rec-loading" style="display:none;">
+            <div class="rec-loading">
+                <div class="rec-loading-spinner"></div>
+                <h3>Analyzing Candidates...</h3>
+                <p>Running AI pipeline on each resume. This may take a moment.</p>
+            </div>
+        </section>
+
+        <!-- Results -->
+        <section id="rec-results" style="display:none;">
+            <!-- Summary Stats -->
+            <div class="rec-summary-bar">
+                <div class="rec-stat-card">
+                    <div class="rec-stat-num" id="rec-stat-total">0</div>
+                    <div class="rec-stat-label">Candidates</div>
+                </div>
+                <div class="rec-stat-card">
+                    <div class="rec-stat-num" id="rec-stat-avg">0</div>
+                    <div class="rec-stat-label">Avg Score</div>
+                </div>
+                <div class="rec-stat-card">
+                    <div class="rec-stat-num" id="rec-stat-excellent" style="background: linear-gradient(135deg, #00e676, #69f0ae); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;">0</div>
+                    <div class="rec-stat-label">Excellent</div>
+                </div>
+                <div class="rec-stat-card">
+                    <div class="rec-stat-num" id="rec-stat-strong" style="background: linear-gradient(135deg, #ffd740, #ffab40); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;">0</div>
+                    <div class="rec-stat-label">Strong</div>
+                </div>
+                <div class="rec-stat-card">
+                    <div class="rec-stat-num" id="rec-stat-time">-</div>
+                    <div class="rec-stat-label">Time</div>
+                </div>
+            </div>
+
+            <!-- Candidates Table -->
+            <div class="rec-results-card">
+                <div class="rec-results-header">
+                    <h3>🏆 Ranked Candidates</h3>
+                    <div class="rec-filter-area">
+                        <input type="text" id="rec-filter-skill" class="rec-filter-input" placeholder="🔍 Filter by skill or name...">
+                        <input type="number" id="rec-min-score" class="rec-filter-input rec-min-score" placeholder="Min score" min="0" max="100">
+                    </div>
+                </div>
+                <div class="rec-candidate-list" id="rec-candidate-list"></div>
+            </div>
+
+            <!-- New Analysis -->
+            <div class="rec-new-analysis">
+                <button class="btn-rec-new" id="btn-rec-new">🔄 New Recruiter Analysis</button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>Built with <span class="footer-heart">♥</span> using NLP & Google Gemini AI</p>
+    </footer>
+
+    <script src="js/recruiter.js"></script>
+</body>
+</html>

@@ -1,0 +1,586 @@
+/* ============================================================
+   Interactive Editor Styles v3.0 — Ultra Premium UI
+============================================================ */
+
+:root {
+    --doc-accent: #2563eb;
+}
+
+.editor-section {
+    padding: 30px 20px 60px;
+    max-width: 1700px;
+    margin: 0 auto;
+    animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Header ─────────────────────────────────────────────── */
+.editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    background: var(--overlay-glass);
+    border: 1px solid var(--border-light);
+    border-radius: 16px;
+    padding: 18px 30px;
+    backdrop-filter: blur(25px);
+    box-shadow: var(--shadow-sm);
+}
+
+.editor-header h2 {
+    font-size: 1.6rem;
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    letter-spacing: -0.02em;
+}
+
+.editor-actions {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+}
+
+.btn-export {
+    background: linear-gradient(135deg, #00e676, #00c853);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 10px 24px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 4px 15px rgba(0, 200, 83, 0.3);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+.btn-export:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 200, 83, 0.45);
+}
+.btn-export:disabled {
+    opacity: 0.7;
+    transform: none;
+    cursor: wait;
+}
+
+.btn-close-editor {
+    background: var(--overlay-light);
+    color: var(--text-primary);
+    border: 1px solid var(--border-default);
+    padding: 9px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+}
+.btn-close-editor:hover {
+    background: var(--border-light);
+    transform: translateY(-1px);
+}
+
+/* ── Premium Workspace Layout ────────────────────────────── */
+.premium-workspace {
+    display: grid;
+    grid-template-columns: 320px 1fr 340px;
+    gap: 24px;
+    align-items: start;
+}
+
+@media (max-width: 1200px) {
+    .premium-workspace {
+        grid-template-columns: 300px 1fr;
+    }
+    .right-sidebar {
+        display: none !important; /* Hide AI on smaller screens or handle differently */
+    }
+}
+
+/* ── Sidebars ────────────────────────────────────────────── */
+.editor-sidebar {
+    position: sticky;
+    top: 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+.editor-panel {
+    background: var(--overlay-glass);
+    border: 1px solid var(--border-light);
+    border-radius: 16px;
+    padding: 24px 20px;
+    max-height: calc(100vh - 140px);
+    overflow-y: auto;
+    backdrop-filter: blur(30px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+}
+
+.editor-panel::-webkit-scrollbar {
+    width: 6px;
+}
+.editor-panel::-webkit-scrollbar-thumb {
+    background: var(--border-subtle);
+    border-radius: 10px;
+}
+
+.editor-panel h3 {
+    margin: 0 0 20px;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+}
+
+/* Settings Form Elements */
+.settings-group {
+    margin-bottom: 24px;
+}
+
+.settings-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.grid-2-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.tmpl-btn {
+    background: var(--background-page);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+.tmpl-btn:hover {
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+}
+.tmpl-btn.active {
+    background: linear-gradient(135deg, rgba(79,143,255,0.1), rgba(79,143,255,0.2));
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+    box-shadow: 0 0 0 1px var(--accent-blue) inset;
+}
+
+.color-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    padding: 4px;
+}
+
+.color-btn {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.color-btn:hover {
+    transform: scale(1.1);
+}
+.color-btn.active {
+    border-color: #fff;
+    box-shadow: 0 0 0 3px var(--accent-blue), 0 4px 12px rgba(0,0,0,0.2);
+    transform: scale(1.1);
+}
+
+.font-size-controls {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.font-btn {
+    background: var(--background-page);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    padding: 8px 0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-weight: 600;
+}
+.font-btn small {
+    font-weight: 500;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+.font-btn:hover {
+    border-color: var(--accent-blue);
+}
+.font-btn.active {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+    color: #fff;
+}
+.font-btn.active small {
+    color: rgba(255,255,255,0.8);
+}
+
+.settings-actions {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toolbar-btn {
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.toolbar-btn.btn-primary {
+    background: rgba(79, 143, 255, 0.15);
+    color: var(--accent-blue);
+}
+.toolbar-btn.btn-primary:hover {
+    background: var(--accent-blue);
+    color: #fff;
+}
+.toolbar-btn.toolbar-btn-danger {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px dashed var(--border-subtle);
+}
+.toolbar-btn.toolbar-btn-danger:hover {
+    border-color: #ff5252;
+    color: #ff5252;
+    background: rgba(255,82,82,0.1);
+}
+
+/* ── Suggestions Right Sidebar ───────────────────────────── */
+.sug-meta-block {
+    background: rgba(79, 143, 255, 0.05);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 20px;
+}
+.sug-meta-label {
+    font-size: 0.75rem;
+    color: var(--accent-blue);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+}
+.sug-meta-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    padding: 3px 0;
+}
+.sug-meta-row strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.sug-header-note {
+    font-size: 0.8rem;
+    color: #b45309;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.ai-suggestion-card {
+    background: var(--background-page);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 16px;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+}
+.ai-suggestion-card:hover {
+    border-color: rgba(79, 143, 255, 0.4);
+    box-shadow: 0 8px 25px rgba(79, 143, 255, 0.15);
+    transform: translateY(-3px);
+}
+.ai-suggestion-label {
+    font-size: 0.8rem;
+    color: var(--text-primary);
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+.ai-suggestion-text {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 14px;
+}
+.btn-apply, .btn-copy-sug {
+    background: rgba(79, 143, 255, 0.1);
+    color: var(--accent-blue);
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.2s ease;
+}
+.btn-apply:hover, .btn-copy-sug:hover {
+    background: var(--accent-blue);
+    color: #fff;
+}
+
+
+/* ── Paper Canvas ─────────────────────────────────────────── */
+.editor-canvas-container {
+    display: flex;
+    justify-content: center;
+    overflow-x: auto;
+    padding: 40px;
+    background: repeating-linear-gradient(
+        45deg,
+        rgba(0,0,0,0.02),
+        rgba(0,0,0,0.02) 10px,
+        transparent 10px,
+        transparent 20px
+    ), var(--overlay-glass);
+    border-radius: 16px;
+    border: 1px solid var(--border-light);
+    min-height: calc(100vh - 140px);
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+}
+
+.editor-paper {
+    width: 210mm;
+    min-height: 297mm;
+    background: #ffffff;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05);
+    padding: 20mm;
+    color: #111;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    border-radius: 4px;
+    font-size: 10pt;
+    line-height: 1.5;
+    position: relative;
+    /* Prevent bold header spilling outside rounded corners */
+    overflow: hidden; 
+}
+
+/* Edit hint on hover/focus */
+[contenteditable="true"] {
+    border-radius: 4px;
+    padding: 3px 5px;
+    margin: -3px -5px;
+    transition: all 0.2s ease;
+    cursor: text;
+}
+[contenteditable="true"]:hover {
+    box-shadow: 0 0 0 1.5px rgba(37,99,235,0.3);
+    background: rgba(37,99,235,0.04);
+}
+[contenteditable="true"]:focus {
+    box-shadow: 0 0 0 2.5px rgba(37,99,235,0.8);
+    background: rgba(37,99,235,0.08);
+    outline: none;
+}
+
+/* ── Resume Typography ─────────────────────────────────────── */
+.doc-header-block {
+    text-align: center;
+    margin-bottom: 20pt;
+    padding-bottom: 14pt;
+    border-bottom: 2px solid var(--doc-accent, #2563eb);
+}
+.doc-name {
+    font-size: 28pt;
+    font-weight: 800;
+    color: var(--doc-accent, #2563eb);
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 4pt;
+}
+.doc-title-line {
+    font-size: 12pt;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 8pt;
+}
+.doc-contact {
+    font-size: 9.5pt;
+    color: #555;
+}
+.doc-section {
+    margin-bottom: 16pt;
+}
+.doc-section-title {
+    font-size: 12pt;
+    font-weight: 700;
+    color: var(--doc-accent, #2563eb);
+    border-bottom: 2px solid var(--doc-accent, #2563eb);
+    margin-bottom: 8pt;
+    padding-bottom: 2pt;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.doc-item {
+    margin-bottom: 10pt;
+}
+.doc-item-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4pt;
+}
+.doc-item-title {
+    font-size: 11pt;
+    font-weight: 700;
+    color: #111;
+}
+.doc-item-date {
+    font-size: 9.5pt;
+    color: #666;
+    font-weight: 500;
+}
+.doc-desc {
+    font-size: 10pt;
+    line-height: 1.6;
+    color: #333;
+}
+.doc-bullets {
+    margin: 4pt 0 8pt 18pt;
+    padding: 0;
+    font-size: 10pt;
+    line-height: 1.6;
+    color: #333;
+}
+.doc-bullets li {
+    margin-bottom: 4pt;
+    padding-left: 4pt;
+}
+.doc-skills {
+    font-size: 10pt;
+    line-height: 1.6;
+    color: #333;
+}
+
+/* ── Template Variants ─────────────────────────────────────── */
+
+/* Modern: sidebar accent strip */
+.tmpl-modern .doc-header-block {
+    text-align: left;
+    padding-left: 20pt;
+    border-left: 6px solid var(--doc-accent, #2563eb);
+    border-bottom: none;
+    margin-bottom: 24pt;
+}
+.tmpl-modern .doc-section {
+    position: relative;
+}
+.tmpl-modern .doc-section-title {
+    background: rgba(37,99,235,0.08); /* This gets overridden somewhat by doc-accent, we'll keep it simple for now */
+    padding: 4pt 10pt;
+    border-radius: 4px;
+    border-bottom: none;
+    display: inline-block;
+    margin-bottom: 10pt;
+}
+
+/* Minimal: clean, very thin lines */
+.tmpl-minimal .doc-name {
+    font-size: 24pt;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+.tmpl-minimal .doc-header-block {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 20pt;
+}
+.tmpl-minimal .doc-section-title {
+    border-bottom: 1px solid #ddd;
+    color: #111 !important; /* Force true minimal */
+    font-size: 10.5pt;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+}
+
+/* Bold: strong block header header */
+.tmpl-bold .doc-header-block {
+    background: var(--doc-accent, #2563eb);
+    margin: -20mm -20mm 20pt;
+    padding: 30pt 20mm 25pt;
+    border-bottom: none;
+    border-radius: 0;
+    text-align: left;
+}
+.tmpl-bold .doc-name {
+    color: #fff !important;
+    font-size: 32pt;
+    margin-bottom: 8pt;
+}
+.tmpl-bold .doc-title-line {
+    color: rgba(255,255,255,0.9);
+    font-size: 14pt;
+}
+.tmpl-bold .doc-contact {
+    color: rgba(255,255,255,0.7);
+    margin-top: 12pt;
+}
+
+/* ── Print ─────────────────────────────────────────────────── */
+@media print {
+    body * { visibility: hidden; }
+    #editor-section { padding: 0; margin: 0; }
+    .editor-paper, .editor-paper * { visibility: visible; }
+    .editor-paper {
+        position: absolute;
+        left: 0; top: 0;
+        box-shadow: none;
+        border: none;
+        padding: 0; /* JS pdf export handles padding */
+    }
+    [contenteditable] { box-shadow: none !important; background: transparent !important; }
+}

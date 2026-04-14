@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ResumeAI Matcher</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>Resume<span class="highlight">AI</span></h2>
+      <p>1-Click JD Matcher</p>
+    </div>
+
+    <!-- Upload view (First time or replace) -->
+    <div id="upload-view" class="view">
+      <div class="upload-area" id="dropzone">
+        <p>Drop your Resume (PDF/DOCX)</p>
+        <p class="sub">or click to select</p>
+        <input type="file" id="resume-upload" accept=".pdf,.docx,.txt" hidden>
+      </div>
+      <button id="btn-scan" class="btn" disabled>Scan Current Job</button>
+    </div>
+
+    <!-- Processing view -->
+    <div id="loading-view" class="view" style="display: none;">
+      <div class="spinner"></div>
+      <p id="loading-text">Extracting Job Description...</p>
+    </div>
+
+    <!-- Results view -->
+    <div id="results-view" class="view" style="display: none;">
+      <div class="score-circle" id="match-score">0</div>
+      <h3 id="match-level">Analyzing...</h3>
+      <p id="match-summary" class="summary-text"></p>
+      
+      <div class="stats">
+        <div class="stat"><span id="match-count">0</span> Matched</div>
+        <div class="stat"><span id="missing-count">0</span> Missing</div>
+      </div>
+      
+      <button id="btn-reset" class="btn btn-secondary">Scan Another Job</button>
+    </div>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,630 @@
+/* ============================================================
+   Recruiter Dashboard — Styles
+   Premium dark/light theme with glassmorphism
+   ============================================================ */
+
+/* ── Layout ─────────────────────────────────────────────── */
+
+.recruiter-main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 100px 24px 60px;
+}
+
+/* ── Navigation Tabs ────────────────────────────────────── */
+
+.nav-tabs {
+    display: flex;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+    padding: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.nav-tab {
+    padding: 8px 20px;
+    border-radius: 9px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.5);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-family: 'Inter', sans-serif;
+}
+
+.nav-tab:hover {
+    color: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-tab.active {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.3), rgba(79, 143, 255, 0.3));
+    color: white;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.2);
+}
+
+/* ── Recruiter Hero ─────────────────────────────────────── */
+
+.rec-hero {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.rec-hero-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(168, 85, 247, 0.15));
+    border: 1px solid rgba(124, 58, 237, 0.25);
+    border-radius: 100px;
+    font-size: 0.8rem;
+    color: #a855f7;
+    font-weight: 500;
+    margin-bottom: 16px;
+}
+
+.rec-hero h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 12px;
+    line-height: 1.2;
+}
+
+.rec-hero p {
+    color: rgba(255, 255, 255, 0.5);
+    max-width: 600px;
+    margin: 0 auto;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+/* ── Upload Area ────────────────────────────────────────── */
+
+.rec-upload-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.rec-upload-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    padding: 28px;
+    backdrop-filter: blur(12px);
+}
+
+.rec-upload-card h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.rec-upload-card .rec-card-subtitle {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-bottom: 16px;
+}
+
+.rec-jd-textarea {
+    width: 100%;
+    min-height: 180px;
+    background: var(--overlay-glass);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 16px;
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.rec-jd-textarea:focus {
+    border-color: rgba(124, 58, 237, 0.5);
+}
+
+.rec-jd-textarea::placeholder {
+    color: var(--text-muted);
+}
+
+/* ── Resume Dropzone (Recruiter Multi-Upload) ───────────── */
+
+.rec-dropzone {
+    border: 2px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.rec-dropzone:hover, .rec-dropzone.dragover {
+    border-color: rgba(124, 58, 237, 0.4);
+    background: rgba(124, 58, 237, 0.03);
+}
+
+.rec-dropzone-icon { font-size: 2rem; opacity: 0.6; }
+.rec-dropzone-text { color: var(--text-secondary); font-size: 0.95rem; }
+.rec-dropzone-sub { color: var(--text-muted); font-size: 0.8rem; }
+
+.rec-file-list {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.rec-file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.rec-file-name {
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.rec-file-size {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+}
+
+.rec-file-remove {
+    background: none;
+    border: none;
+    color: #ff5252;
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.rec-file-remove:hover {
+    background: rgba(255, 82, 82, 0.1);
+}
+
+/* ── Analyze Button ─────────────────────────────────────── */
+
+.rec-analyze-wrapper {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.btn-rec-analyze {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 40px;
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.3);
+}
+
+.btn-rec-analyze:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(124, 58, 237, 0.4);
+}
+
+.btn-rec-analyze:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.rec-file-counter {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.85rem;
+    margin-top: 10px;
+}
+
+/* ── Loading State ──────────────────────────────────────── */
+
+.rec-loading {
+    text-align: center;
+    padding: 60px;
+}
+
+.rec-loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid rgba(124, 58, 237, 0.15);
+    border-top-color: #a855f7;
+    border-radius: 50%;
+    animation: recSpin 0.8s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes recSpin {
+    to { transform: rotate(360deg); }
+}
+
+.rec-loading h3 {
+    color: var(--text-primary);
+    font-family: 'Space Grotesk', sans-serif;
+    margin-bottom: 8px;
+}
+
+.rec-loading p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* ── Results Summary Bar ────────────────────────────────── */
+
+.rec-summary-bar {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.rec-stat-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+}
+
+.rec-stat-num {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #4f8fff, #00d4ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.rec-stat-label {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+}
+
+/* ── Candidates Table ───────────────────────────────────── */
+
+.rec-results-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+.rec-results-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.rec-results-header h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.1rem;
+    color: white;
+    font-weight: 600;
+}
+
+.rec-filter-area {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.rec-filter-input {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 6px 14px;
+    color: white;
+    font-size: 0.8rem;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    width: 200px;
+    transition: border-color 0.2s ease;
+}
+
+.rec-filter-input:focus {
+    border-color: rgba(124, 58, 237, 0.5);
+}
+
+.rec-filter-input::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+}
+
+.rec-min-score {
+    width: 80px;
+}
+
+/* ── Candidate Rows ─────────────────────────────────────── */
+
+.rec-candidate-list {
+    padding: 0;
+}
+
+.rec-candidate-row {
+    display: grid;
+    grid-template-columns: 50px 1.5fr 100px 100px 100px 1.2fr 100px;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    transition: background 0.2s ease;
+}
+
+.rec-candidate-row:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.rec-candidate-row:last-child {
+    border-bottom: none;
+}
+
+.rec-rank {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.rec-rank-1 { background: linear-gradient(135deg, #ffd740, #ffab40); color: #1a1a2e; }
+.rec-rank-2 { background: rgba(192, 192, 192, 0.2); color: #c0c0c0; }
+.rec-rank-3 { background: rgba(205, 127, 50, 0.2); color: #cd7f32; }
+.rec-rank-default { background: rgba(255, 255, 255, 0.06); color: rgba(255, 255, 255, 0.5); }
+
+.rec-candidate-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.rec-candidate-role {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    margin-top: 2px;
+}
+
+.rec-score-cell {
+    text-align: center;
+}
+
+.rec-score-val {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.rec-score-label-sm {
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.3);
+    text-transform: uppercase;
+}
+
+.rec-skill-tags-cell {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.rec-skill-mini {
+    padding: 2px 8px;
+    background: rgba(79, 143, 255, 0.1);
+    border: 1px solid rgba(79, 143, 255, 0.15);
+    border-radius: 4px;
+    font-size: 0.7rem;
+    color: #4f8fff;
+}
+
+.rec-badge {
+    display: inline-flex;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* ── Candidate Detail Expand ────────────────────────────── */
+
+.rec-candidate-details {
+    padding: 0 24px 20px;
+    display: none;
+}
+
+.rec-candidate-details.open {
+    display: block;
+}
+
+.rec-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.rec-detail-section h4 {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.rec-detail-list {
+    list-style: none;
+    padding: 0;
+}
+
+.rec-detail-list li {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.8rem;
+    padding: 3px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.rec-detail-list li::before {
+    content: '•';
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.rec-match-tag { color: #00e676; }
+.rec-miss-tag { color: #ff5252; }
+
+.rec-expand-btn {
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.5);
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Inter', sans-serif;
+}
+
+.rec-expand-btn:hover {
+    border-color: rgba(124, 58, 237, 0.3);
+    color: #a855f7;
+}
+
+/* ── New Analysis Button ────────────────────────────────── */
+
+.rec-new-analysis {
+    text-align: center;
+    margin-top: 32px;
+}
+
+.btn-rec-new {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-rec-new:hover {
+    border-color: rgba(124, 58, 237, 0.3);
+    color: white;
+    background: rgba(124, 58, 237, 0.05);
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+    .rec-upload-grid { grid-template-columns: 1fr; }
+    .rec-summary-bar { grid-template-columns: repeat(3, 1fr); }
+    .rec-candidate-row {
+        grid-template-columns: 40px 1fr 80px 80px;
+    }
+    .rec-skill-tags-cell,
+    .rec-score-cell:nth-child(4),
+    .rec-score-cell:nth-child(5) {
+        display: none;
+    }
+}
+
+@media (max-width: 600px) {
+    .rec-hero h1 { font-size: 1.6rem; }
+    .rec-summary-bar { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── Light Mode Overrides ───────────────────────────────── */
+
+body.light-mode .rec-upload-card {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-mode .rec-jd-textarea {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: #1a1a2e;
+}
+
+body.light-mode .rec-jd-textarea::placeholder { color: rgba(0, 0, 0, 0.3); }
+
+body.light-mode .rec-dropzone {
+    border-color: rgba(0, 0, 0, 0.12);
+}
+
+body.light-mode .rec-hero h1 { color: #1a1a2e; }
+body.light-mode .rec-hero p { color: rgba(0, 0, 0, 0.5); }
+body.light-mode .rec-results-card {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.08);
+}
+body.light-mode .rec-candidate-name { color: #1a1a2e; }
+body.light-mode .rec-candidate-row { border-bottom-color: rgba(0, 0, 0, 0.06); }
+body.light-mode .rec-candidate-row:hover { background: rgba(0, 0, 0, 0.02); }
+body.light-mode .rec-stat-card {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.06);
+}
+body.light-mode .rec-filter-input {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: #1a1a2e;
+}
+body.light-mode .nav-tab { color: var(--text-secondary); }
+body.light-mode .nav-tab.active { 
+    color: var(--accent-violet); 
+    background: rgba(124, 58, 237, 0.1); 
+    box-shadow: none;
+}
+body.light-mode .nav-tabs {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.08);
+}
+body.light-mode .rec-results-header h3 { color: #1a1a2e; }
