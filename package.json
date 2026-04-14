@@ -1,0 +1,9 @@
+{
+  "name": "resume-analyzer-root",
+  "version": "1.0.0",
+  "description": "Root package for deployment",
+  "scripts": {
+    "start": "node server/server.js",
+    "postinstall": "cd server && npm install"
+  }
+}
