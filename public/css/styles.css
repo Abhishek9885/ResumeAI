@@ -3635,11 +3635,15 @@ body {
     background: var(--overlay-glass);
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-md);
-    transition: background 0.2s;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform: translateY(0);
 }
 
 .ss-item:hover {
     background: var(--overlay-glass-hover);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    border-color: rgba(79, 143, 255, 0.3);
 }
 
 .ss-header {
@@ -3747,6 +3751,15 @@ body {
     background: var(--overlay-glass);
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-md);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform: translateY(0);
+}
+
+.rm-gap-item:hover {
+    background: var(--overlay-glass-hover);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    border-color: rgba(79, 143, 255, 0.3);
 }
 
 .rm-gap-header {
@@ -3798,6 +3811,18 @@ body {
     border-radius: var(--radius-md);
     margin-bottom: 10px;
     border-left: 3px solid var(--accent-blue);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform: translateY(0);
+}
+
+.rm-phase:hover {
+    background: var(--overlay-glass-hover);
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    border-left-color: var(--accent-cyan);
+    border-top-color: rgba(79, 143, 255, 0.3);
+    border-right-color: rgba(79, 143, 255, 0.3);
+    border-bottom-color: rgba(79, 143, 255, 0.3);
 }
 
 .rm-phase-header {
@@ -3914,6 +3939,15 @@ body {
     background: var(--overlay-glass);
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-md);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform: translateY(0);
+}
+
+.rm-cert-item:hover {
+    background: var(--overlay-glass-hover);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    border-color: rgba(79, 143, 255, 0.3);
 }
 
 .rm-cert-name {
@@ -3977,11 +4011,15 @@ body {
     background: var(--overlay-glass);
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-md);
-    transition: background 0.2s;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform: translateY(0);
 }
 
 .iv-question:hover {
     background: var(--overlay-glass-hover);
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    border-color: rgba(168, 85, 247, 0.3);
 }
 
 .iv-q-header {
