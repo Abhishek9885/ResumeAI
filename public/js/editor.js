@@ -19,13 +19,23 @@
     window.openEditor = function (llmAnalysis, originalText, rewriteSuggestions) {
         if (!editorSection) return;
         document.getElementById('results-section').style.display = 'none';
-        document.getElementById('hero-section').style.display   = 'none';
+        
+        const heroSection = document.getElementById('hero-section');
+        if (heroSection) heroSection.style.display = 'none';
+        
         editorSection.style.display = 'block';
 
         globalRewrite = rewriteSuggestions || llmAnalysis?.rewriteSuggestions || null;
 
         injectToolbar();
-        populateCanvas(llmAnalysis, rewriteSuggestions);
+        
+        const savedDraft = localStorage.getItem('resume_editor_draft');
+        if (savedDraft && confirm('We found a saved draft of your resume. Would you like to restore it?')) {
+            editorCanvas.innerHTML = savedDraft;
+        } else {
+            populateCanvas(llmAnalysis, rewriteSuggestions);
+        }
+        
         populateSuggestions(llmAnalysis, rewriteSuggestions);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
@@ -96,6 +106,9 @@
                     <button class="toolbar-btn btn-primary" id="btn-add-section">
                         <span style="font-size:1.1rem">+</span> Add Custom Section
                     </button>
+                    <button class="toolbar-btn btn-outline" id="btn-save-draft">
+                        💾 Save Draft
+                    </button>
                     <button class="toolbar-btn toolbar-btn-danger" id="btn-clear">
                         ↺ Reset to AI Version
                     </button>
@@ -142,11 +155,31 @@
 
         // Add Section
         document.getElementById('btn-add-section').addEventListener('click', addSection);
+        
+        // Save Draft
+        document.getElementById('btn-save-draft').addEventListener('click', () => {
+            const paper = document.getElementById('editor-canvas');
+            if(paper) {
+                localStorage.setItem('resume_editor_draft', paper.innerHTML);
+                const btn = document.getElementById('btn-save-draft');
+                btn.innerHTML = '✅ Saved to Drafts';
+                btn.style.color = '#00e676';
+                btn.style.borderColor = 'rgba(0, 230, 118, 0.4)';
+                btn.style.background = 'rgba(0, 230, 118, 0.1)';
+                setTimeout(() => {
+                    btn.innerHTML = '💾 Save Draft';
+                    btn.style.color = '';
+                    btn.style.borderColor = '';
+                    btn.style.background = '';
+                }, 2000);
+            }
+        });
 
         // Reset
         document.getElementById('btn-clear').addEventListener('click', () => {
-            if (confirm('Reset the resume to the AI-generated version?')) {
+            if (confirm('Reset the resume to the AI-generated version? This will overwrite your current edits.')) {
                 populateCanvas(null, globalRewrite);
+                localStorage.removeItem('resume_editor_draft');
             }
         });
     }
