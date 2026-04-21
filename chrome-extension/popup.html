@@ -13,11 +13,11 @@
       <p>1-Click JD Matcher</p>
     </div>
 
-    <!-- Upload view (First time or replace) -->
-    <div id="upload-view" class="view">
       <label class="upload-area" id="dropzone" for="resume-upload">
-        <p>Drop your Resume (PDF/DOCX)</p>
-        <p class="sub">or click to select</p>
+        <div id="dropzone-content">
+          <p id="dropzone-main">Drop your Resume (PDF/DOCX)</p>
+          <p class="sub" id="dropzone-sub">or click to select</p>
+        </div>
         <input type="file" id="resume-upload" accept=".pdf,.docx,.txt" style="position:absolute;width:100%;height:100%;opacity:0;cursor:pointer;top:0;left:0;">
       </label>
       <button id="btn-scan" class="btn" disabled>Scan Current Job</button>

@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', function() {
   var fileInput = document.getElementById('resume-upload');
   var btnScan = document.getElementById('btn-scan');
   var btnReset = document.getElementById('btn-reset');
+  var dropzoneMain = document.getElementById('dropzone-main');
+  var dropzoneSub = document.getElementById('dropzone-sub');
   
   var uploadView = document.getElementById('upload-view');
   var loadingView = document.getElementById('loading-view');
@@ -11,22 +13,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
   var selectedFile = null;
 
-  // File input change handler
+  // Handles updating the UI without destroying the file input element
+  function handleFileSelect(file) {
+    if (!file) return;
+    selectedFile = file;
+    dropzoneMain.innerHTML = '✓ ' + selectedFile.name;
+    dropzoneMain.style.color = '#00e676';
+    dropzoneSub.style.display = 'none';
+    dropzone.style.borderColor = '#00e676';
+    btnScan.disabled = false;
+  }
+
+  // File input change handler (fires whenever a file is selected)
   fileInput.addEventListener('change', function(e) {
     if (e.target.files.length > 0) {
-      selectedFile = e.target.files[0];
-      dropzone.innerHTML = '<p style="color:#00e676">✓ ' + selectedFile.name + '</p>' +
-        '<input type="file" id="resume-upload" accept=".pdf,.docx,.txt" style="position:absolute;width:100%;height:100%;opacity:0;cursor:pointer;top:0;left:0;">';
-      dropzone.style.borderColor = '#00e676';
-      btnScan.disabled = false;
-      // Re-bind the new file input
-      var newInput = document.getElementById('resume-upload');
-      newInput.addEventListener('change', function(ev) {
-        if (ev.target.files.length > 0) {
-          selectedFile = ev.target.files[0];
-          document.querySelector('#dropzone p').textContent = '✓ ' + selectedFile.name;
-        }
-      });
+      handleFileSelect(e.target.files[0]);
     }
   });
 
@@ -81,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
       var llm = data.llmAnalysis;
       var ats = data.atsScore;
       
-      if (llm && llm.jdMatch) {
+      if (llm && llm.jdMatch && !llm.error) {
         var jd = llm.jdMatch;
         document.getElementById('match-score').innerText = jd.matchScore || ats.score;
         document.getElementById('match-level').innerText = jd.matchLevel || "Analyzed";
@@ -100,25 +101,20 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Reset
+  // Reset functionality
   btnReset.addEventListener('click', function() {
     resultsView.style.display = 'none';
     uploadView.style.display = 'block';
+    
+    // Reset state
     selectedFile = null;
-    dropzone.innerHTML = '<p>Drop your Resume (PDF/DOCX)</p><p class="sub">or click to select</p>' +
-      '<input type="file" id="resume-upload" accept=".pdf,.docx,.txt" style="position:absolute;width:100%;height:100%;opacity:0;cursor:pointer;top:0;left:0;">';
+    fileInput.value = ""; // Clear file input natively
+    
+    // Reset UI
+    dropzoneMain.innerHTML = 'Drop your Resume (PDF/DOCX)';
+    dropzoneMain.style.color = 'inherit';
+    dropzoneSub.style.display = 'block';
     dropzone.style.borderColor = 'rgba(255, 255, 255, 0.1)';
     btnScan.disabled = true;
-    // Re-bind file input after reset
-    var resetInput = document.getElementById('resume-upload');
-    resetInput.addEventListener('change', function(e) {
-      if (e.target.files.length > 0) {
-        selectedFile = e.target.files[0];
-        dropzone.innerHTML = '<p style="color:#00e676">✓ ' + selectedFile.name + '</p>' +
-          '<input type="file" id="resume-upload" accept=".pdf,.docx,.txt" style="position:absolute;width:100%;height:100%;opacity:0;cursor:pointer;top:0;left:0;">';
-        dropzone.style.borderColor = '#00e676';
-        btnScan.disabled = false;
-      }
-    });
   });
 });
