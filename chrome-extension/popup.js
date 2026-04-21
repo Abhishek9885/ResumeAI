@@ -81,6 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
       
       var llm = data.llmAnalysis;
       var ats = data.atsScore;
+      var statsDiv = document.querySelector('.stats');
       
       if (llm && llm.jdMatch && !llm.error) {
         var jd = llm.jdMatch;
@@ -89,9 +90,12 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('match-summary').innerText = jd.matchSummary || "";
         document.getElementById('match-count').innerText = (jd.matchedSkills || []).length;
         document.getElementById('missing-count').innerText = (jd.missingSkills || []).length;
+        if(statsDiv) statsDiv.style.display = 'flex';
       } else {
         document.getElementById('match-score').innerText = ats.score;
         document.getElementById('match-level').innerText = ats.gradeLabel;
+        document.getElementById('match-summary').innerText = "⚠️ Google AI rate limit reached (too many fast scans). Showing base ATS Quality Score. Try again in 1-2 minutes.";
+        if(statsDiv) statsDiv.style.display = 'none';
       }
       
     } catch (err) {
