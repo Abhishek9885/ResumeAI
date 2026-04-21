@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
       formData.append('resume', selectedFile);
       formData.append('jobDescription', jdText);
 
-      const response = await fetch('http://localhost:3000/api/analyze', {
+      const response = await fetch('https://resumeai-sck8.onrender.com/api/analyze', {
         method: 'POST',
         body: formData
       });
