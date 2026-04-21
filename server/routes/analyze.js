@@ -165,4 +165,69 @@ router.post('/', upload.single('resume'), async (req, res) => {
     }
 });
 
+// ============================================================
+// Quick Analyze — POST /api/analyze/quick
+// Lightweight endpoint for Chrome extension (fast JD matching)
+// Skips: rewrite, roadmap, interview, job recommendations
+// ============================================================
+
+router.post('/quick', upload.single('resume'), async (req, res) => {
+    try {
+        const startTime = Date.now();
+
+        if (!req.file) {
+            return res.status(400).json({ error: 'No resume file uploaded.' });
+        }
+
+        const jobDescription = req.body.jobDescription || null;
+
+        // Step 1: Extract text
+        const resumeText = await extractText(req.file.buffer, req.file.originalname);
+        if (resumeText.trim().length < 50) {
+            return res.status(400).json({ error: 'Extracted text too short.' });
+        }
+
+        // Step 2: NLP + Skills + Sections (all local, instant)
+        const resumeNLP = processText(resumeText);
+        const resumeSkills = extractSkills(resumeText, resumeNLP.filtered, resumeNLP.bigrams);
+        const sectionAnalysis = analyzeSections(resumeText);
+
+        // Step 3: Only run ONE Gemini call (resume + JD analysis)
+        let llmAnalysis = null;
+        if (isGeminiAvailable()) {
+            try {
+                llmAnalysis = await analyzeResume(resumeText, jobDescription);
+            } catch (err) {
+                console.error('Quick AI analysis failed:', err.message);
+            }
+        }
+
+        // Step 4: ATS Score
+        const atsResult = calculateATSScore({
+            sectionAnalysis,
+            resumeText,
+            resumeSkills,
+            llmAnalysis
+        });
+
+        const processingTime = Date.now() - startTime;
+        console.log(`⚡ Quick analysis complete in ${processingTime}ms`);
+
+        res.json({
+            success: true,
+            processingTime: processingTime + 'ms',
+            hasJobDescription: !!jobDescription,
+            atsScore: atsResult,
+            llmAnalysis,
+            resumeSkills,
+            sectionAnalysis,
+            geminiEnabled: isGeminiAvailable()
+        });
+
+    } catch (error) {
+        console.error('Quick analysis error:', error);
+        res.status(500).json({ error: error.message || 'Analysis failed.' });
+    }
+});
+
 export default router;

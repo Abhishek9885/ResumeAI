@@ -45,6 +45,8 @@ body {
 }
 
 .upload-area {
+  display: block;
+  position: relative;
   border: 1px dashed var(--accent-secondary);
   background: rgba(79, 143, 255, 0.05);
   border-radius: 12px;

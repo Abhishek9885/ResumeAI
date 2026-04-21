@@ -1,30 +1,37 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const dropzone = document.getElementById('dropzone');
-  const fileInput = document.getElementById('resume-upload');
-  const btnScan = document.getElementById('btn-scan');
-  const btnReset = document.getElementById('btn-reset');
+document.addEventListener('DOMContentLoaded', function() {
+  var dropzone = document.getElementById('dropzone');
+  var fileInput = document.getElementById('resume-upload');
+  var btnScan = document.getElementById('btn-scan');
+  var btnReset = document.getElementById('btn-reset');
   
-  const uploadView = document.getElementById('upload-view');
-  const loadingView = document.getElementById('loading-view');
-  const resultsView = document.getElementById('results-view');
-  const loadingText = document.getElementById('loading-text');
+  var uploadView = document.getElementById('upload-view');
+  var loadingView = document.getElementById('loading-view');
+  var resultsView = document.getElementById('results-view');
+  var loadingText = document.getElementById('loading-text');
 
-  let selectedFile = null;
+  var selectedFile = null;
 
-  // Setup file drop/click
-  dropzone.addEventListener('click', () => fileInput.click());
-  
-  fileInput.addEventListener('change', (e) => {
+  // File input change handler
+  fileInput.addEventListener('change', function(e) {
     if (e.target.files.length > 0) {
       selectedFile = e.target.files[0];
-      dropzone.innerHTML = \`<p style="color:#00e676">✓ \${selectedFile.name}</p>\`;
+      dropzone.innerHTML = '<p style="color:#00e676">✓ ' + selectedFile.name + '</p>' +
+        '<input type="file" id="resume-upload" accept=".pdf,.docx,.txt" style="position:absolute;width:100%;height:100%;opacity:0;cursor:pointer;top:0;left:0;">';
       dropzone.style.borderColor = '#00e676';
       btnScan.disabled = false;
+      // Re-bind the new file input
+      var newInput = document.getElementById('resume-upload');
+      newInput.addEventListener('change', function(ev) {
+        if (ev.target.files.length > 0) {
+          selectedFile = ev.target.files[0];
+          document.querySelector('#dropzone p').textContent = '✓ ' + selectedFile.name;
+        }
+      });
     }
   });
 
   // Handle Scan Button
-  btnScan.addEventListener('click', async () => {
+  btnScan.addEventListener('click', async function() {
     if (!selectedFile) return;
 
     uploadView.style.display = 'none';
@@ -33,14 +40,15 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       // 1. Get JD from active tab
       loadingText.innerText = "Extracting Job Data from page...";
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      var tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+      var tab = tabs[0];
       
-      const injectionResults = await chrome.scripting.executeScript({
+      var injectionResults = await chrome.scripting.executeScript({
         target: { tabId: tab.id },
         files: ['content.js']
       });
       
-      let jdText = "";
+      var jdText = "";
       if (injectionResults && injectionResults[0].result) {
         jdText = injectionResults[0].result;
       }
@@ -51,11 +59,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // 2. Send to backend
       loadingText.innerText = "Analyzing JD vs Resume...";
-      const formData = new FormData();
+      var formData = new FormData();
       formData.append('resume', selectedFile);
       formData.append('jobDescription', jdText);
 
-      const response = await fetch('https://resumeai-sck8.onrender.com/api/analyze', {
+      var response = await fetch('https://resumeai-sck8.onrender.com/api/analyze/quick', {
         method: 'POST',
         body: formData
       });
@@ -64,17 +72,17 @@ document.addEventListener('DOMContentLoaded', () => {
         throw new Error("Analysis failed. Server offline?");
       }
 
-      const data = await response.json();
+      var data = await response.json();
       
       // 3. Render Results
       loadingView.style.display = 'none';
       resultsView.style.display = 'block';
       
-      const llm = data.llmAnalysis;
-      const ats = data.atsScore;
+      var llm = data.llmAnalysis;
+      var ats = data.atsScore;
       
       if (llm && llm.jdMatch) {
-        const jd = llm.jdMatch;
+        var jd = llm.jdMatch;
         document.getElementById('match-score').innerText = jd.matchScore || ats.score;
         document.getElementById('match-level').innerText = jd.matchLevel || "Analyzed";
         document.getElementById('match-summary').innerText = jd.matchSummary || "";
@@ -93,13 +101,24 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Reset
-  btnReset.addEventListener('click', () => {
+  btnReset.addEventListener('click', function() {
     resultsView.style.display = 'none';
     uploadView.style.display = 'block';
     selectedFile = null;
-    fileInput.value = "";
-    dropzone.innerHTML = \`<p>Drop your Resume (PDF/DOCX)</p><p class="sub">or click to select</p>\`;
+    dropzone.innerHTML = '<p>Drop your Resume (PDF/DOCX)</p><p class="sub">or click to select</p>' +
+      '<input type="file" id="resume-upload" accept=".pdf,.docx,.txt" style="position:absolute;width:100%;height:100%;opacity:0;cursor:pointer;top:0;left:0;">';
     dropzone.style.borderColor = 'rgba(255, 255, 255, 0.1)';
     btnScan.disabled = true;
+    // Re-bind file input after reset
+    var resetInput = document.getElementById('resume-upload');
+    resetInput.addEventListener('change', function(e) {
+      if (e.target.files.length > 0) {
+        selectedFile = e.target.files[0];
+        dropzone.innerHTML = '<p style="color:#00e676">✓ ' + selectedFile.name + '</p>' +
+          '<input type="file" id="resume-upload" accept=".pdf,.docx,.txt" style="position:absolute;width:100%;height:100%;opacity:0;cursor:pointer;top:0;left:0;">';
+        dropzone.style.borderColor = '#00e676';
+        btnScan.disabled = false;
+      }
+    });
   });
 });
