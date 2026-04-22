@@ -7,6 +7,9 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
+import helmet from 'helmet';
+import morgan from 'morgan';
+import rateLimit from 'express-rate-limit';
 import analyzeRouter from './routes/analyze.js';
 import recruiterRouter from './routes/recruiterRoute.js';
 import portfolioRouter from './routes/portfolioRoute.js';
@@ -21,17 +24,61 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ── Middleware ────────────────────────────────────────────────
-app.use(cors());
+// ── Security Middleware ───────────────────────────────────────
+app.use(helmet({
+    contentSecurityPolicy: false,        // Allow inline scripts in frontend
+    crossOriginEmbedderPolicy: false     // Allow CDN resources
+}));
+
+// ── CORS — restrict to known origins ─────────────────────────
+const allowedOrigins = [
+    'https://resumeai-sck8.onrender.com',
+    'http://localhost:3000',
+    'http://localhost:5500',
+    'http://127.0.0.1:5500'
+];
+app.use(cors({
+    origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, curl, chrome extensions)
+        if (!origin) return callback(null, true);
+        // Allow chrome-extension:// origins
+        if (origin.startsWith('chrome-extension://')) return callback(null, true);
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        callback(null, true); // In dev, allow all — tighten in prod
+    },
+    methods: ['GET', 'POST']
+}));
+
+// ── Request Logging ──────────────────────────────────────────
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
+
+// ── Body Parsing ─────────────────────────────────────────────
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// ── Rate Limiting ────────────────────────────────────────────
+const analyzeRateLimit = rateLimit({
+    windowMs: 15 * 60 * 1000,   // 15 minutes
+    max: 10,                     // 10 analyses per window
+    message: { error: 'Too many analysis requests. Please wait 15 minutes.' },
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
+const recruiterRateLimit = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,                      // 5 bulk analyses per window
+    message: { error: 'Too many recruiter requests. Please wait 15 minutes.' },
+    standardHeaders: true,
+    legacyHeaders: false
+});
 
 // Serve static frontend files
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
-// ── API Routes ───────────────────────────────────────────────
-app.use('/api/analyze', analyzeRouter);
-app.use('/api/recruiter', recruiterRouter);
+// ── API Routes (with rate limits) ────────────────────────────
+app.use('/api/analyze', analyzeRateLimit, analyzeRouter);
+app.use('/api/recruiter', recruiterRateLimit, recruiterRouter);
 app.use('/api/portfolio', portfolioRouter);
 
 // Health check endpoint

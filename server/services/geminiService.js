@@ -47,6 +47,34 @@ function parseGeminiJSON(text) {
     return JSON.parse(jsonText);
 }
 
+/**
+ * Call Gemini with retry logic, exponential backoff, and timeout
+ * @param {string} prompt - The prompt to send
+ * @param {number} retries - Number of retry attempts (default 3)
+ * @param {number} timeoutMs - Timeout per attempt in ms (default 30s)
+ * @returns {Object} - Parsed JSON response
+ */
+async function callGeminiWithRetry(prompt, retries = 3, timeoutMs = 30000) {
+    for (let attempt = 0; attempt < retries; attempt++) {
+        try {
+            const result = await Promise.race([
+                model.generateContent(prompt),
+                new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Gemini request timed out')), timeoutMs)
+                )
+            ]);
+            return parseGeminiJSON(result.response.text());
+        } catch (err) {
+            const isLastAttempt = attempt === retries - 1;
+            console.warn(`⚠️ Gemini attempt ${attempt + 1}/${retries} failed: ${err.message}`);
+            if (isLastAttempt) throw err;
+            // Exponential backoff: 1s, 2s, 4s
+            const backoffMs = 1000 * Math.pow(2, attempt);
+            await new Promise(r => setTimeout(r, backoffMs));
+        }
+    }
+}
+
 // ── 1. Comprehensive Resume Analysis + Section-wise Scoring ──
 
 export async function analyzeResume(resumeText, jobDescription = null) {
@@ -118,8 +146,7 @@ ${resumeText.substring(0, 5000)}
 }`;
 
     try {
-        const result = await model.generateContent(prompt);
-        return parseGeminiJSON(result.response.text());
+        return await callGeminiWithRetry(prompt);
     } catch (error) {
         console.error('Gemini analysis failed:', error.message);
         return {
@@ -181,8 +208,7 @@ Respond in valid JSON only (no markdown):
 }`;
 
     try {
-        const result = await model.generateContent(prompt);
-        return parseGeminiJSON(result.response.text());
+        return await callGeminiWithRetry(prompt);
     } catch (error) {
         console.error('Skill gap roadmap failed:', error.message);
         return { error: true, message: 'Could not generate learning roadmap.' };
@@ -282,8 +308,7 @@ Respond in valid JSON only (no markdown):
 }`;
 
     try {
-        const result = await model.generateContent(prompt);
-        return parseGeminiJSON(result.response.text());
+        return await callGeminiWithRetry(prompt);
     } catch (error) {
         console.error('Mock interview generation failed:', error.message);
         return { error: true, message: 'Could not generate mock interview.' };
@@ -323,8 +348,7 @@ Respond in valid JSON only (no markdown):
 }`;
 
     try {
-        const result = await model.generateContent(prompt);
-        return parseGeminiJSON(result.response.text());
+        return await callGeminiWithRetry(prompt);
     } catch (error) {
         console.error('Rewrite generation failed:', error.message);
         return { error: true, message: 'Could not generate rewriting suggestions.' };

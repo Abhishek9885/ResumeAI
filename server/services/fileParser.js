@@ -70,6 +70,6 @@ function cleanText(text) {
         .replace(/\r/g, '\n')
         .replace(/[^\S\n]+/g, ' ')       // collapse horizontal whitespace
         .replace(/\n{3,}/g, '\n\n')       // max 2 consecutive newlines
-        .replace(/[^\x20-\x7E\n]/g, ' ')  // remove non-printable chars
+        .replace(/[\x00-\x1F\x7F]/g, ' ')  // remove only control chars, keep Unicode
         .trim();
 }

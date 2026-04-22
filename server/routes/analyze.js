@@ -22,6 +22,17 @@ import { generateJobRecommendations } from '../services/jobRecommender.js';
 
 const router = Router();
 
+// ── Input Sanitization ───────────────────────────────────────
+function sanitizeInput(text, maxLength = 5000) {
+    if (!text || typeof text !== 'string') return null;
+    return text
+        .replace(/<[^>]*>/g, '')           // Strip HTML tags
+        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '') // Strip control chars
+        .replace(/\s{3,}/g, ' ')           // Collapse excessive whitespace
+        .trim()
+        .substring(0, maxLength);
+}
+
 const upload = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: 10 * 1024 * 1024 },
@@ -45,7 +56,7 @@ router.post('/', upload.single('resume'), async (req, res) => {
             return res.status(400).json({ error: 'No resume file uploaded.' });
         }
 
-        const jobDescription = req.body.jobDescription || null;
+        const jobDescription = sanitizeInput(req.body.jobDescription);
 
         // Step 1: Extract text
         console.log('📄 Extracting text...');
@@ -179,7 +190,7 @@ router.post('/quick', upload.single('resume'), async (req, res) => {
             return res.status(400).json({ error: 'No resume file uploaded.' });
         }
 
-        const jobDescription = req.body.jobDescription || null;
+        const jobDescription = sanitizeInput(req.body.jobDescription);
 
         // Step 1: Extract text
         const resumeText = await extractText(req.file.buffer, req.file.originalname);
