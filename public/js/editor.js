@@ -67,40 +67,6 @@
         settingsSidebar.className = 'editor-sidebar left-sidebar';
         settingsSidebar.innerHTML = `
             <div class="editor-panel settings-panel">
-                <h3><span style="font-size:1.2rem;">🎨</span> Resume Settings</h3>
-                
-                <div class="settings-group">
-                    <span class="settings-label">Template Style</span>
-                    <div class="grid-2-col">
-                        <button class="tmpl-btn active" data-tmpl="classic">Classic</button>
-                        <button class="tmpl-btn" data-tmpl="modern">Modern</button>
-                        <button class="tmpl-btn" data-tmpl="minimal">Minimal</button>
-                        <button class="tmpl-btn" data-tmpl="bold">Bold</button>
-                    </div>
-                </div>
-
-                <div class="settings-group">
-                    <span class="settings-label">Accent Color</span>
-                    <div class="color-picker-grid">
-                        <button class="color-btn active" data-color="#2563eb" style="background:#2563eb" title="Royal Blue"></button>
-                        <button class="color-btn" data-color="#7c3aed" style="background:#7c3aed" title="Purple"></button>
-                        <button class="color-btn" data-color="#059669" style="background:#059669" title="Emerald"></button>
-                        <button class="color-btn" data-color="#dc2626" style="background:#dc2626" title="Crimson"></button>
-                        <button class="color-btn" data-color="#b45309" style="background:#b45309" title="Amber"></button>
-                        <button class="color-btn" data-color="#0f172a" style="background:#0f172a" title="Slate"></button>
-                        <button class="color-btn" data-color="#ec4899" style="background:#ec4899" title="Pink"></button>
-                        <button class="color-btn" data-color="#14b8a6" style="background:#14b8a6" title="Teal"></button>
-                    </div>
-                </div>
-
-                <div class="settings-group">
-                    <span class="settings-label">Typography Size</span>
-                    <div class="font-size-controls">
-                        <button class="font-btn" data-size="9">Aa<br><small>Small</small></button>
-                        <button class="font-btn active" data-size="10">Aa<br><small>Normal</small></button>
-                        <button class="font-btn" data-size="11">Aa<br><small>Large</small></button>
-                    </div>
-                </div>
 
                 <div class="settings-actions">
                     <button class="toolbar-btn btn-primary" id="btn-add-section">
@@ -123,35 +89,7 @@
         workspace.appendChild(canvasContainer);
         workspace.appendChild(aiPanel);
 
-        // Bind Template
-        settingsSidebar.querySelectorAll('.tmpl-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                settingsSidebar.querySelectorAll('.tmpl-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentTemplate = btn.dataset.tmpl;
-                applyTemplate(currentTemplate);
-            });
-        });
 
-        // Bind Colors
-        settingsSidebar.querySelectorAll('.color-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                settingsSidebar.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                applyAccentColor(btn.dataset.color);
-            });
-        });
-
-        // Bind Font Size
-        settingsSidebar.querySelectorAll('.font-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                settingsSidebar.querySelectorAll('.font-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                const size = btn.dataset.size;
-                document.querySelectorAll('.doc-desc, .doc-bullets, .doc-skills, .doc-item-meta')
-                    .forEach(el => el.style.fontSize = size + 'pt');
-            });
-        });
 
         // Add Section
         document.getElementById('btn-add-section').addEventListener('click', addSection);
