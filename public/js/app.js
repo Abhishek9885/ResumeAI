@@ -1193,7 +1193,7 @@
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            await html2pdf().set(opt).from(container.firstChild).save();
+            await html2pdf().set(opt).from(container).save();
             document.body.removeChild(container);
             showToast('📄 PDF report downloaded!');
 
