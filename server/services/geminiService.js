@@ -47,32 +47,44 @@ function parseGeminiJSON(text) {
     return JSON.parse(jsonText);
 }
 
+// Global queue to prevent Gemini free tier concurrency limits (429 errors)
+let geminiQueue = Promise.resolve();
+
 /**
- * Call Gemini with retry logic, exponential backoff, and timeout
+ * Call Gemini with retry logic, exponential backoff, timeout, and concurrency queue
  * @param {string} prompt - The prompt to send
  * @param {number} retries - Number of retry attempts (default 3)
  * @param {number} timeoutMs - Timeout per attempt in ms (default 30s)
  * @returns {Object} - Parsed JSON response
  */
 async function callGeminiWithRetry(prompt, retries = 3, timeoutMs = 30000) {
-    for (let attempt = 0; attempt < retries; attempt++) {
-        try {
-            const result = await Promise.race([
-                model.generateContent(prompt),
-                new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error('Gemini request timed out')), timeoutMs)
-                )
-            ]);
-            return parseGeminiJSON(result.response.text());
-        } catch (err) {
-            const isLastAttempt = attempt === retries - 1;
-            console.warn(`⚠️ Gemini attempt ${attempt + 1}/${retries} failed: ${err.message}`);
-            if (isLastAttempt) throw err;
-            // Exponential backoff: 1s, 2s, 4s
-            const backoffMs = 1000 * Math.pow(2, attempt);
-            await new Promise(r => setTimeout(r, backoffMs));
+    // Wrap the entire retry logic in a function to be queued
+    const executeRequest = async () => {
+        for (let attempt = 0; attempt < retries; attempt++) {
+            try {
+                const result = await Promise.race([
+                    model.generateContent(prompt),
+                    new Promise((_, reject) =>
+                        setTimeout(() => reject(new Error('Gemini request timed out')), timeoutMs)
+                    )
+                ]);
+                return parseGeminiJSON(result.response.text());
+            } catch (err) {
+                const isLastAttempt = attempt === retries - 1;
+                console.warn(`⚠️ Gemini attempt ${attempt + 1}/${retries} failed: ${err.message}`);
+                if (isLastAttempt) throw err;
+                // Exponential backoff with jitter to prevent stampedes
+                const backoffMs = (1000 * Math.pow(2, attempt)) + (Math.random() * 1000);
+                await new Promise(r => setTimeout(r, backoffMs));
+            }
         }
-    }
+    };
+
+    // Add to global queue
+    const queuedPromise = geminiQueue.then(() => executeRequest());
+    // Catch errors so the queue doesn't break for subsequent requests
+    geminiQueue = queuedPromise.catch(() => {});
+    return queuedPromise;
 }
 
 // ── 1. Comprehensive Resume Analysis + Section-wise Scoring ──
