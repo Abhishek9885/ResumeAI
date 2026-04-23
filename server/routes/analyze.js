@@ -87,36 +87,44 @@ router.post('/', upload.single('resume'), async (req, res) => {
         let jobRecommendations = null;
 
         if (isGeminiAvailable()) {
-            console.log('🤖 Running AI pipeline (analysis + rewrite + roadmap + interview + semantic + jobs)...');
+            console.log('🤖 Running AI pipeline in parallel (analysis + rewrite + roadmap + interview + jobs)...');
             const skillNames = resumeSkills.all.map(s => s.name || s);
 
-            const promises = [
+            const [
+                analysisResult,
+                rewriteResult,
+                roadmapResult,
+                interviewResult,
+                jobsResult,
+                ...semanticResults
+            ] = await Promise.allSettled([
                 analyzeResume(resumeText, jobDescription),
                 generateRewriteSuggestions(resumeText),
                 generateSkillGapRoadmap(resumeText, skillNames, jobDescription),
                 generateMockInterview(resumeText, jobDescription),
-                generateJobRecommendations(resumeText, skillNames, null, jobDescription)
-            ];
+                generateJobRecommendations(resumeText, skillNames, null, jobDescription),
+                // Semantic matching only if JD provided and embeddings available
+                ...(jobDescription && isSemanticAvailable()
+                    ? [computeSemanticMatch(resumeText, jobDescription), findSemanticSkillMatches(skillNames, jobDescription)]
+                    : [])
+            ]);
 
-            // Add semantic matching if JD provided and embeddings available
+            // Extract values, logging any failures
+            const extract = (result, name) => {
+                if (result.status === 'fulfilled') return result.value;
+                console.error(`❌ ${name} failed:`, result.reason?.message);
+                return null;
+            };
+
+            llmAnalysis        = extract(analysisResult,  'analyzeResume');
+            rewriteSuggestions = extract(rewriteResult,   'generateRewriteSuggestions');
+            skillGapRoadmap    = extract(roadmapResult,   'generateSkillGapRoadmap');
+            mockInterview      = extract(interviewResult, 'generateMockInterview');
+            jobRecommendations = extract(jobsResult,      'generateJobRecommendations');
+
             if (jobDescription && isSemanticAvailable()) {
-                promises.push(
-                    computeSemanticMatch(resumeText, jobDescription),
-                    findSemanticSkillMatches(skillNames, jobDescription)
-                );
-            }
-
-            const results = await Promise.all(promises);
-
-            llmAnalysis = results[0];
-            rewriteSuggestions = results[1];
-            skillGapRoadmap = results[2];
-            mockInterview = results[3];
-            jobRecommendations = results[4];
-
-            if (jobDescription && isSemanticAvailable()) {
-                semanticMatch = results[5];
-                semanticSkillMatches = results[6];
+                semanticMatch       = extract(semanticResults[0], 'computeSemanticMatch');
+                semanticSkillMatches = extract(semanticResults[1], 'findSemanticSkillMatches');
             }
         }
 
