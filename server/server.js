@@ -14,6 +14,8 @@ import analyzeRouter from './routes/analyze.js';
 import recruiterRouter from './routes/recruiterRoute.js';
 import portfolioRouter from './routes/portfolioRoute.js';
 import { initGemini } from './services/geminiService.js';
+import cluster from 'cluster';
+import os from 'os';
 
 // Load environment variables
 dotenv.config();
@@ -111,15 +113,29 @@ app.use((err, req, res, next) => {
 });
 
 // ── Initialize services & start server ──────────────────────
-initGemini(process.env.GEMINI_API_KEY);
+if (cluster.isPrimary) {
+    const numCPUs = os.cpus().length;
+    console.log(`\\n🤖 Primary ${process.pid} is running. Forking ${numCPUs} workers...\\n`);
 
-app.listen(PORT, () => {
-    console.log(`
+    for (let i = 0; i < numCPUs; i++) {
+        cluster.fork();
+    }
+
+    cluster.on('exit', (worker, code, signal) => {
+        console.log(`⚠️ Worker ${worker.process.pid} died. Restarting...`);
+        cluster.fork();
+    });
+} else {
+    initGemini(process.env.GEMINI_API_KEY);
+
+    app.listen(PORT, () => {
+        console.log(`
 ╔══════════════════════════════════════════════════╗
-║     🤖 AI Resume Analyzer — Server Running       ║
+║     🤖 AI Resume Analyzer — Worker ${process.pid.toString().padEnd(12)}║
 ║──────────────────────────────────────────────────║
 ║  🌐  http://localhost:${PORT}                       ║
 ║  📡  API: http://localhost:${PORT}/api/analyze      ║
 ╚══════════════════════════════════════════════════╝
-    `);
-});
+        `);
+    });
+}
