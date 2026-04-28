@@ -428,7 +428,7 @@
             currentAnalysisData = data;
 
             steps.forEach(id => { const el = document.getElementById(id); el.classList.remove('active'); el.classList.add('done'); });
-            setTimeout(() => { loadingSection.style.display = 'none'; displayResults(data); saveToHistory(data); }, 800);
+            setTimeout(() => { loadingSection.style.display = 'none'; displayResults(data); }, 800);
 
         } catch (error) {
             loadingSection.style.display = 'none';
@@ -488,21 +488,15 @@
         renderRewrite(data.rewriteSuggestions);
         renderSuggestions(ats.suggestions, llm);
 
-        // Semantic and JD specific
-        if (data.hasJobDescription) {
-            // JD Match Banner
-            renderJDMatch(llm, data.hasJobDescription);
-            
-            // Render Semantic Match if available
-            try {
-                if (data.semanticMatch && !data.semanticMatch.error) {
-                    document.getElementById('semantic-match-card').style.display = 'block';
-                    renderSemanticMatch(data.semanticMatch, data.semanticSkillMatches);
-                } else {
-                    document.getElementById('semantic-match-card').style.display = 'none';
-                }
-            } catch (e) { console.warn('Semantic render failed:', e); document.getElementById('semantic-match-card').style.display = 'none'; }
-        }
+        // Semantic Match (only when JD provided)
+        try {
+            if (data.hasJobDescription && data.semanticMatch && !data.semanticMatch.error) {
+                document.getElementById('semantic-match-card').style.display = 'block';
+                renderSemanticMatch(data.semanticMatch, data.semanticSkillMatches);
+            } else {
+                document.getElementById('semantic-match-card').style.display = 'none';
+            }
+        } catch (e) { console.warn('Semantic render failed:', e); document.getElementById('semantic-match-card').style.display = 'none'; }
 
         // XAI Explanations
         try {
@@ -523,9 +517,6 @@
                 document.getElementById('jobs-card').style.display = 'none';
             }
         } catch (e) { console.warn('Jobs render failed:', e); document.getElementById('jobs-card').style.display = 'none'; }
-
-        // Render analysis history panel
-        renderHistoryPanel();
     }
 
     // ── JD Match Banner ──────────────────────────────────────
@@ -1017,70 +1008,6 @@
         container.innerHTML = html;
     }
 
-    // ── Analysis History (localStorage) ──────────────────────
-    const HISTORY_KEY = 'resumeai-history';
-    const MAX_HISTORY = 5;
 
-    function saveToHistory(data) {
-        try {
-            const entry = {
-                id: Date.now(),
-                date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
-                score: data.atsScore?.score || 0,
-                grade: data.atsScore?.grade || '-',
-                gradeColor: data.atsScore?.gradeColor || '#4f8fff',
-                gradeLabel: data.atsScore?.gradeLabel || 'Analyzed',
-                skillCount: data.resumeStats?.skillCount || 0,
-                wordCount: data.resumeStats?.wordCount || 0,
-                role: data.llmAnalysis?.candidateProfile?.estimatedRole || 'Unknown',
-                hasJD: data.hasJobDescription || false,
-                jdScore: data.llmAnalysis?.jdMatch?.matchScore || null,
-                processingTime: data.processingTime || '-'
-            };
-            let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-            history.unshift(entry);
-            if (history.length > MAX_HISTORY) history = history.slice(0, MAX_HISTORY);
-            localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-        } catch (e) { console.warn('Failed to save history:', e); }
-    }
-
-    function renderHistoryPanel() {
-        let panel = document.getElementById('history-panel');
-        const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-        if (history.length === 0) { if (panel) panel.style.display = 'none'; return; }
-
-        if (!panel) {
-            panel = document.createElement('div');
-            panel.id = 'history-panel';
-            panel.className = 'result-card result-card-full';
-            // Insert after the new-analysis button wrapper
-            const wrapper = document.querySelector('.new-analysis-wrapper');
-            if (wrapper) wrapper.parentNode.insertBefore(panel, wrapper);
-            else resultsSection.appendChild(panel);
-        }
-        panel.style.display = '';
-
-        let html = `<div class="result-card-header"><h3>📜 Analysis History <span class="ai-badge" style="background:rgba(79,143,255,0.15);color:#4f8fff;border-color:rgba(79,143,255,0.3);">Last ${history.length}</span></h3></div>`;
-        html += `<div style="padding:15px; display:grid; gap:10px;">`;
-
-        history.forEach((h, i) => {
-            const isCurrent = i === 0;
-            html += `
-                <div style="display:flex; align-items:center; gap:15px; padding:12px 16px; background:${isCurrent ? 'rgba(79,143,255,0.08)' : 'var(--overlay-glass)'}; border:1px solid ${isCurrent ? 'rgba(79,143,255,0.25)' : 'var(--border-subtle)'}; border-radius:10px;">
-                    <div style="width:48px;height:48px;border-radius:50%;background:rgba(0,0,0,0.2);border:2px solid ${h.gradeColor};display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:1.1rem;color:${h.gradeColor};font-family:'Space Grotesk',sans-serif;flex-shrink:0;">${h.score}</div>
-                    <div style="flex:1; min-width:0;">
-                        <div style="font-weight:600; color:var(--text-primary); font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${h.role} ${isCurrent ? '<span style="color:#00e676;font-size:0.7rem;font-weight:500;">(Latest)</span>' : ''}</div>
-                        <div style="color:var(--text-muted); font-size:0.75rem; margin-top:3px;">${h.date} · ${h.skillCount} skills · ${h.wordCount} words${h.jdScore ? ' · JD: ' + h.jdScore + '%' : ''}</div>
-                    </div>
-                    <div style="text-align:right; flex-shrink:0;">
-                        <div style="font-weight:700; color:${h.gradeColor}; font-size:0.85rem;">${h.grade}</div>
-                        <div style="color:var(--text-muted); font-size:0.7rem;">${h.gradeLabel}</div>
-                    </div>
-                </div>`;
-        });
-
-        html += `</div>`;
-        panel.innerHTML = html;
-    }
 
 })();
