@@ -1,10 +1,10 @@
 // ============================================================
 // GitHub Portfolio Service
-// Fetches GitHub repositories and uses Gemini to generate resume
+// Fetches GitHub repositories and uses Groq to generate resume
 // bullet points out of the repository metadata.
 // ============================================================
 
-import { getModel } from './geminiService.js';
+import { getGroq } from './groqService.js';
 
 /**
  * Fetch a user's repositories from GitHub API
@@ -63,11 +63,11 @@ export async function analyzeGitHubPortfolio(username) {
             };
         }
 
-        const model = getModel();
-        if (!model) {
+        const groq = getGroq();
+        if (!groq) {
             return {
                 error: true,
-                message: "Gemini AI is not initialized."
+                message: "Groq AI is not initialized."
             };
         }
 
@@ -90,8 +90,16 @@ Respond with a JSON object ONLY:
     ]
 }`;
 
-        const result = await model.generateContent(prompt);
-        let text = result.response.text();
+        const model = process.env.GROQ_MODEL || 'mixtral-8x7b'; // Fallback model
+        const payload = {
+            model: model,
+            messages: [{ role: 'user', content: prompt }],
+            temperature: 0.7,
+            max_tokens: 1024
+        };
+
+        const result = await groq.chat.completions.create(payload);
+        let text = result.choices[0].message.content;
         
         // Parse JSON
         const jsonMatch = text.match(/\{[\s\S]*\}/);

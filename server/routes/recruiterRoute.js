@@ -9,8 +9,8 @@ import { extractText } from '../services/fileParser.js';
 import { processText } from '../services/nlpEngine.js';
 import { extractSkills } from '../services/skillExtractor.js';
 import {
-    analyzeResume, isGeminiAvailable
-} from '../services/geminiService.js';
+    analyzeResume, isGroqAvailable
+} from '../services/groqService.js';
 import { calculateATSScore, analyzeSections } from '../services/atsScorer.js';
 import { computeSemanticMatch, isSemanticAvailable } from '../services/semanticMatcher.js';
 import { generateExplanations } from '../services/explainEngine.js';
@@ -73,7 +73,7 @@ router.post('/analyze', upload.array('resumes', 10), async (req, res) => {
 
                 // Step 5: AI Analysis (if available)
                 let llmAnalysis = null;
-                if (isGeminiAvailable()) {
+                if (isGroqAvailable()) {
                     try {
                         llmAnalysis = await analyzeResume(resumeText, jobDescription);
                     } catch (err) {

@@ -13,7 +13,7 @@ import rateLimit from 'express-rate-limit';
 import analyzeRouter from './routes/analyze.js';
 import recruiterRouter from './routes/recruiterRoute.js';
 import portfolioRouter from './routes/portfolioRoute.js';
-import { initGemini } from './services/geminiService.js';
+import { initGroq } from './services/groqService.js';
 import cluster from 'cluster';
 import os from 'os';
 
@@ -87,7 +87,7 @@ app.get('/api/health', (req, res) => {
     res.json({
         status: 'ok',
         timestamp: new Date().toISOString(),
-        geminiEnabled: process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'your_gemini_api_key_here'
+        geminiEnabled: process.env.GROQ_API_KEY && process.env.GROQ_API_KEY !== 'your_groq_api_key_here'
     });
 });
 
@@ -125,7 +125,7 @@ if (cluster.isPrimary) {
         cluster.fork();
     });
 } else {
-    initGemini(process.env.GEMINI_API_KEY);
+    initGroq(process.env.GROQ_API_KEY);
 
     app.listen(PORT, () => {
         console.log(`

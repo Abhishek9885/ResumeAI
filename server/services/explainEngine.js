@@ -269,7 +269,7 @@ export function generateExplanations({
                 boosters.push({
                     category: 'AI Assessment',
                     icon: '🤖',
-                    text: `Gemini AI rated resume quality at ${q}/100 (${llmAnalysis.overallQuality}) — blended into final score`,
+                    text: `Groq AI rated resume quality at ${q}/100 (${llmAnalysis.overallQuality}) — blended into final score`,
                     impact: '+' + Math.round((q - 60) * 0.4),
                     impactColor: '#00e676'
                 });
@@ -277,7 +277,7 @@ export function generateExplanations({
                 reducers.push({
                     category: 'AI Assessment',
                     icon: '🤖',
-                    text: `Gemini AI rated resume quality at ${q}/100 (${llmAnalysis.overallQuality}) — significant room for improvement`,
+                    text: `Groq AI rated resume quality at ${q}/100 (${llmAnalysis.overallQuality}) — significant room for improvement`,
                     impact: '-' + Math.round((60 - q) * 0.4),
                     impactColor: '#ff5252'
                 });

@@ -10,11 +10,9 @@ import { extractText } from '../services/fileParser.js';
 import { processText } from '../services/nlpEngine.js';
 import { extractSkills } from '../services/skillExtractor.js';
 import {
-    analyzeResume, isGeminiAvailable,
-    generateRewriteSuggestions,
-    generateSkillGapRoadmap,
+    analyzeResume, isGroqAvailable,
     generateMockInterview
-} from '../services/geminiService.js';
+} from '../services/groqService.js';
 import { calculateATSScore, analyzeSections } from '../services/atsScorer.js';
 import { computeSemanticMatch, findSemanticSkillMatches, isSemanticAvailable } from '../services/semanticMatcher.js';
 import { generateExplanations } from '../services/explainEngine.js';
@@ -48,21 +46,42 @@ const upload = multer({
  * POST /api/analyze
  * Upload resume (required) + optional JD in body
  */
-router.post('/', upload.single('resume'), async (req, res) => {
-    try {
-        const startTime = Date.now();
-
-        if (!req.file) {
-            return res.status(400).json({ error: 'No resume file uploaded.' });
+router.post('/',
+    // Conditionally apply multer only for multipart/form-data requests so
+    // JSON debug requests (resumeText) are accepted without multer interfering.
+    (req, res, next) => {
+        const contentType = req.headers['content-type'] || '';
+        if (contentType.includes('multipart/form-data')) {
+            return upload.single('resume')(req, res, next);
         }
+        return next();
+    },
+    async (req, res) => {
+    try {
+        console.log('DEBUG /api/analyze headers:', req.headers['content-type']);
+        console.log('DEBUG /api/analyze body keys:', Object.keys(req.body || {}));
+        const startTime = Date.now();
 
         const jobDescription = sanitizeInput(req.body.jobDescription);
 
-        // Step 1: Extract text
-        console.log('📄 Extracting text...');
-        const resumeText = await extractText(req.file.buffer, req.file.originalname);
-        if (resumeText.trim().length < 50) {
-            return res.status(400).json({ error: 'Extracted text too short.' });
+        // Accept either a file upload (preferred) or direct JSON `resumeText` (testing/debug)
+        let resumeText = null;
+        if (req.file) {
+            // Step 1: Extract text from uploaded file
+            console.log('📄 Extracting text from uploaded file...');
+            resumeText = await extractText(req.file.buffer, req.file.originalname);
+            if (resumeText.trim().length < 50) {
+                return res.status(400).json({ error: 'Extracted text too short.' });
+            }
+        } else if (req.body && req.body.resumeText) {
+            // Allow raw resume text in request body for debugging or quick tests
+            console.log('📄 Using resumeText from request body (debug mode)');
+            resumeText = sanitizeInput(req.body.resumeText, 20000);
+            if (!resumeText || resumeText.length < 50) {
+                return res.status(400).json({ error: 'Provided resumeText too short.' });
+            }
+        } else {
+            return res.status(400).json({ error: 'No resume file uploaded or resumeText provided.' });
         }
 
         // Step 2: NLP Processing
@@ -77,7 +96,7 @@ router.post('/', upload.single('resume'), async (req, res) => {
         console.log('📋 Analyzing sections...');
         const sectionAnalysis = analyzeSections(resumeText);
 
-        // Run all Gemini calls in parallel for speed
+        // Run all Groq calls in parallel for speed
         let llmAnalysis = null;
         let rewriteSuggestions = null;
         let skillGapRoadmap = null;
@@ -86,45 +105,62 @@ router.post('/', upload.single('resume'), async (req, res) => {
         let semanticSkillMatches = null;
         let jobRecommendations = null;
 
-        if (isGeminiAvailable()) {
-            console.log('🤖 Running AI pipeline in parallel (analysis + rewrite + roadmap + interview + jobs)...');
+        if (isGroqAvailable()) {
+            console.log('🤖 Running optimized AI pipeline (3 bundled calls)...');
             const skillNames = resumeSkills.all.map(s => s.name || s);
 
             const [
-                analysisResult,
-                rewriteResult,
-                roadmapResult,
+                coreResult,
+                careerResult,
                 interviewResult,
-                jobsResult,
                 ...semanticResults
             ] = await Promise.allSettled([
-                analyzeResume(resumeText, jobDescription),
-                generateRewriteSuggestions(resumeText),
-                generateSkillGapRoadmap(resumeText, skillNames, jobDescription),
+                analyzeResume(resumeText, jobDescription), // Core Analysis + Rewrite
+                generateJobRecommendations(resumeText, skillNames, null, jobDescription), // Job Matches + Roadmap
                 generateMockInterview(resumeText, jobDescription),
-                generateJobRecommendations(resumeText, skillNames, null, jobDescription),
                 // Semantic matching only if JD provided and embeddings available
                 ...(jobDescription && isSemanticAvailable()
                     ? [computeSemanticMatch(resumeText, jobDescription), findSemanticSkillMatches(skillNames, jobDescription)]
                     : [])
             ]);
 
-            // Extract values, logging any failures
+            // Extract values, logging any failures but continuing gracefully
             const extract = (result, name) => {
                 if (result.status === 'fulfilled') return result.value;
                 console.error(`❌ ${name} failed:`, result.reason?.message);
                 return null;
             };
 
-            llmAnalysis        = extract(analysisResult,  'analyzeResume');
-            rewriteSuggestions = extract(rewriteResult,   'generateRewriteSuggestions');
-            skillGapRoadmap    = extract(roadmapResult,   'generateSkillGapRoadmap');
-            mockInterview      = extract(interviewResult, 'generateMockInterview');
-            jobRecommendations = extract(jobsResult,      'generateJobRecommendations');
+            const coreData = extract(coreResult, 'CoreAnalysis');
+            if (coreData && !coreData.error) {
+                llmAnalysis = coreData;
+                rewriteSuggestions = coreData.rewriteSuggestions;
+            } else if (coreData?.error) {
+                console.warn('⚠️ CoreAnalysis returned error:', coreData.message);
+            }
+
+            const careerData = extract(careerResult, 'CareerInsights');
+            if (careerData && !careerData.error) {
+                jobRecommendations = careerData;
+                skillGapRoadmap = careerData.careerRoadmap;
+            } else if (careerData?.error) {
+                console.warn('⚠️ CareerInsights returned error:', careerData.message);
+                // Still provide structure even if API failed
+                jobRecommendations = careerData;
+            }
+
+            const interviewData = extract(interviewResult, 'generateMockInterview');
+            if (interviewData && !interviewData.error) {
+                mockInterview = interviewData;
+            } else if (interviewData?.error) {
+                console.warn('⚠️ MockInterview returned error:', interviewData.message);
+            }
 
             if (jobDescription && isSemanticAvailable()) {
-                semanticMatch       = extract(semanticResults[0], 'computeSemanticMatch');
-                semanticSkillMatches = extract(semanticResults[1], 'findSemanticSkillMatches');
+                const semanticMatchData = extract(semanticResults[0], 'computeSemanticMatch');
+                const semanticSkillData = extract(semanticResults[1], 'findSemanticSkillMatches');
+                if (semanticMatchData && !semanticMatchData.error) semanticMatch = semanticMatchData;
+                if (semanticSkillData && !semanticSkillData.error) semanticSkillMatches = semanticSkillData;
             }
         }
 
@@ -151,6 +187,18 @@ router.post('/', upload.single('resume'), async (req, res) => {
 
         const processingTime = Date.now() - startTime;
         console.log(`✅ Analysis complete in ${processingTime}ms`);
+        
+        // Log what components are being returned
+        console.log('📊 Response Components:', {
+            atsScore: !!atsResult,
+            llmAnalysis: !!llmAnalysis && !llmAnalysis.error,
+            rewriteSuggestions: !!rewriteSuggestions && !rewriteSuggestions.error,
+            jobRecommendations: !!jobRecommendations && !jobRecommendations.error,
+            skillGapRoadmap: !!skillGapRoadmap && !skillGapRoadmap.error,
+            mockInterview: !!mockInterview && !mockInterview.error,
+            semanticMatch: !!semanticMatch && !semanticMatch.error,
+            explanations: !!explanations
+        });
 
         res.json({
             success: true,
@@ -172,7 +220,7 @@ router.post('/', upload.single('resume'), async (req, res) => {
                 uniqueWords: resumeNLP.uniqueTokens,
                 skillCount: resumeSkills.count
             },
-            geminiEnabled: isGeminiAvailable()
+            geminiEnabled: isGroqAvailable()
         });
 
     } catch (error) {
@@ -211,9 +259,9 @@ router.post('/quick', upload.single('resume'), async (req, res) => {
         const resumeSkills = extractSkills(resumeText, resumeNLP.filtered, resumeNLP.bigrams);
         const sectionAnalysis = analyzeSections(resumeText);
 
-        // Step 3: Only run ONE Gemini call (resume + JD analysis)
+        // Step 3: Only run ONE Groq call (resume + JD analysis)
         let llmAnalysis = null;
-        if (isGeminiAvailable()) {
+        if (isGroqAvailable()) {
             try {
                 llmAnalysis = await analyzeResume(resumeText, jobDescription);
             } catch (err) {
@@ -240,7 +288,7 @@ router.post('/quick', upload.single('resume'), async (req, res) => {
             llmAnalysis,
             resumeSkills,
             sectionAnalysis,
-            geminiEnabled: isGeminiAvailable()
+            geminiEnabled: isGroqAvailable()
         });
 
     } catch (error) {

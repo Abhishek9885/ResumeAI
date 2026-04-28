@@ -1,0 +1,9 @@
+John Doe
+Software Engineer
+
+Experience:
+- Built REST APIs using Node.js and Express
+- Frontend development with React; improved performance by 30%
+- Deployed services to AWS (EC2, S3, Lambda)
+
+Skills: Node.js, React, AWS, Docker, SQL

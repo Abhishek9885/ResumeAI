@@ -46,7 +46,7 @@
         setupGitHubSync();
         setupGetStarted();
         setupLoginModal();
-        checkGeminiStatus();
+        checkLLMStatus();
     }
 
     // ── Get Started Button ──────────────────────────────────
@@ -218,14 +218,14 @@
     }
 
     // ── Gemini Status ────────────────────────────────────────
-    async function checkGeminiStatus() {
+    async function checkLLMStatus() {
         try {
             const res = await fetch('/api/health');
             const data = await res.json();
             const dot = geminiBadge.querySelector('.badge-dot');
             if (data.geminiEnabled) {
                 dot.classList.add('active');
-                geminiBadge.querySelector('span:last-child').textContent = 'Gemini AI Active';
+                geminiBadge.querySelector('span:last-child').textContent = 'Groq AI Active';
                 geminiBadge.style.borderColor = 'rgba(0, 230, 118, 0.2)';
             } else {
                 dot.classList.add('inactive');
@@ -953,11 +953,21 @@
 
         // Handle error state
         if (!jobs || jobs.error) {
+            const errorMsg = jobs?.message || 'Unable to generate recommendations';
+            const reason = jobs?.reason || '';
+            console.error('Job recommendations error:', { message: errorMsg, reason });
+            
+            const isQuotaError = reason?.includes('quota') || reason?.includes('429');
+            const helpText = isQuotaError 
+                ? 'Your Groq API key has hit its free tier quota limit. To continue using Market Intelligence features, please check your Groq dashboard or upgrade your plan at <a href="https://www.groq.ai/docs" target="_blank" style="color: #4f8fff; text-decoration: underline;">Groq Docs</a>.'
+                : 'Our AI engine is experiencing high demand. Please try again in a few minutes.';
+            
             container.innerHTML = `
                 <div style="padding: 30px; text-align: center; background: rgba(255, 171, 64, 0.05); border: 1px dashed rgba(255, 171, 64, 0.3); border-radius: 16px;">
                     <div style="font-size: 2.5rem; margin-bottom: 15px;">🤖</div>
                     <h4 style="color: var(--accent-orange); margin-bottom: 8px;">Market Intelligence Temporarily Unavailable</h4>
-                    <p style="color: var(--text-secondary); font-size: 0.9rem; max-width: 400px; margin: 0 auto;">Our AI engine is currently experiencing high demand. Please try again in a few minutes to unlock tailored job matches and market insights.</p>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; max-width: 500px; margin: 0 auto; line-height: 1.6;">${helpText}</p>
+                    ${reason && !isQuotaError ? `<p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 10px;">Details: ${reason}</p>` : ''}
                 </div>
             `;
             return;

@@ -4,24 +4,22 @@
 // LinkedIn/Naukri Smart Match style recommendations
 // ============================================================
 
-import { callGeminiWithRetry } from './geminiService.js';
+import { callGroqWithRetry } from './groqService.js';
 
 let model = null;
 
-export function initJobRecommender(geminiModel) {
-    model = geminiModel;
+export function initJobRecommender(groqClient) {
+    model = groqClient;
 }
 
 /**
- * Generate job recommendations based on resume analysis
- * @param {string} resumeText - Full resume text
- * @param {string[]} detectedSkills - Skills found in resume
- * @param {Object} candidateProfile - Profile from LLM analysis (if available)
- * @param {string} jobDescription - Optional JD for context
- * @returns {Object} - Job recommendations
+ * Generate comprehensive career insights (Job Matches + Skill Gap Roadmap)
  */
 export async function generateJobRecommendations(resumeText, detectedSkills, candidateProfile = null, jobDescription = null) {
-    if (!model) return null;
+    if (!model) {
+        console.warn('⚠️ Groq API not available for job recommendations');
+        return null;
+    }
 
     const skillList = detectedSkills.slice(0, 30).join(', ');
     const profileContext = candidateProfile
@@ -29,9 +27,11 @@ export async function generateJobRecommendations(resumeText, detectedSkills, can
         : '';
     const jdContext = jobDescription
         ? `\nThe candidate is interested in roles similar to: ${jobDescription.substring(0, 500)}`
-        : '';
+        : '\nBased on the candidate\'s profile, suggest skills to learn for career growth in their field.';
 
-    const prompt = `You are a career advisor and job matching expert. Based on the resume and skills below, generate personalized job recommendations.
+    const prompt = `You are a career advisor, job matching expert, and learning path designer. 
+Analyze the resume and skills below to generate personalized job matches AND a comprehensive skill gap analysis with a learning roadmap.
+
 ${profileContext}
 ${jdContext}
 
@@ -41,53 +41,86 @@ ${resumeText.substring(0, 3000)}
 ## Detected Skills:
 ${skillList}
 
-Generate 6 highly relevant job recommendations. For each job, analyze which of the candidate's skills match and which they're missing.
+## Your Task:
+1. Generate 6 highly relevant job recommendations.
+2. Analyze skill gaps and provide a structured learning roadmap for career growth.
 
-Respond in valid JSON only (no markdown):
+## Response Format (Respond in valid JSON only, no markdown):
 {
-    "careerCluster": "<string: primary career cluster for this candidate, e.g. 'Full-Stack Web Development', 'Data Engineering', 'IT Management'>",
+    "careerCluster": "<string: primary career cluster, e.g. 'Full-Stack Web Development'>",
     "marketIntelligence": {
-        "trendingSkills": ["<string: trending skill 1>", "<string: trending skill 2>", "<string: trending skill 3>"],
-        "averageSalary": "<string: typical salary range for this cluster, e.g. '$100K - $140K' or '₹10L - ₹20L'>",
+        "trendingSkills": ["<string>", "<string>", "<string>"],
+        "averageSalary": "<string: e.g. '$100K - $140K'>",
         "demandLevel": "<string: Hot 🔥 / High / Moderate>",
-        "insight": "<string: 1-2 sentence insight about the current job market for this cluster>"
+        "insight": "<string: 1-2 sentence market insight>"
     },
     "recommendations": [
         {
-            "title": "<string: specific job title>",
-            "companyType": "<string: type of company that hires for this, e.g. 'Tech Startups', 'Enterprise SaaS', 'FAANG'>",
-            "matchScore": <number: 0-100, how well candidate fits>,
-            "salaryRange": "<string: estimated salary range, e.g. '$90K - $130K' or '₹8L - ₹15L'>",
-            "description": "<string: 1-2 sentence role description>",
-            "requiredSkills": ["<string>", "<string>", "<string>", "<string>", "<string>"],
-            "candidateHas": ["<string: skill from resume that matches>", "<string>"],
-            "candidateMissing": ["<string: skill candidate should learn>", "<string>"],
-            "growthPotential": "<string: High / Medium / Low>",
-            "demandLevel": "<string: Hot 🔥 / High / Moderate / Growing>"
+            "title": "<string>",
+            "companyType": "<string>",
+            "matchScore": <number: 0-100>,
+            "salaryRange": "<string>",
+            "description": "<string>",
+            "candidateHas": ["<string>"],
+            "candidateMissing": ["<string>"],
+            "growthPotential": "<string: High / Medium / Low>"
         }
     ],
-    "skillClusters": [
-        {
-            "cluster": "<string: skill cluster name, e.g. 'Backend Development'>",
-            "skills": ["<string>", "<string>"],
-            "strength": "<string: Strong / Moderate / Emerging>"
-        }
-    ],
-    "careerAdvice": "<string: 2-3 sentence personalized career direction advice>"
+    "careerRoadmap": {
+        "currentLevel": "<string: Beginner / Intermediate / Advanced / Expert>",
+        "careerTrajectory": "<string: 1-2 sentence advice>",
+        "skillGaps": [
+            {
+                "skill": "<string>",
+                "priority": "<string: Critical / High / Medium / Low>",
+                "reason": "<string>",
+                "currentLevel": "<string>",
+                "targetLevel": "<string>"
+            }
+        ],
+        "learningRoadmap": [
+            {
+                "phase": "<string: Phase 1 / Phase 2 / Phase 3>",
+                "title": "<string>",
+                "duration": "<string: e.g. 2-4 weeks>",
+                "skills": ["<string>", "<string>"],
+                "resources": [
+                    {"name": "<string>", "type": "<string>", "platform": "<string>"}
+                ],
+                "milestone": "<string>"
+            }
+        ],
+        "certificationPath": [
+            {"name": "<string>", "provider": "<string>", "relevance": "<string: High / Medium>"}
+        ],
+        "estimatedTimeline": "<string: e.g. 3-6 months>"
+    },
+    "careerAdvice": "<string: 2-3 sentence personalized advice>"
 }`;
 
     try {
-        const data = await callGeminiWithRetry(prompt);
+        // Use longer timeout for job recommendations since it's a complex request
+        const data = await callGroqWithRetry(prompt, 3, 90000); // 90 second timeout
 
         // Sort recommendations by match score
         if (data && data.recommendations) {
             data.recommendations.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
         }
 
+        console.log('✅ Job recommendations generated successfully');
         return data;
     } catch (error) {
-        console.error('Job recommendation generation failed:', error.message);
-        return { error: true, message: 'Could not generate job recommendations.' };
+        const errorMsg = error.message || 'Unknown error';
+        console.error('❌ Job & Roadmap generation failed:', errorMsg);
+        
+        // Check if it's a quota/rate limit error
+        const isQuotaError = errorMsg.includes('429') || errorMsg.includes('quota');
+        
+        return { 
+            error: true, 
+            message: isQuotaError ? 'Groq API quota exceeded' : 'Could not generate career insights.',
+            reason: errorMsg.substring(0, 200) // First 200 chars of error
+        };
     }
 }
 
