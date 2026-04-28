@@ -4,19 +4,12 @@
 // LinkedIn/Naukri Smart Match style recommendations
 // ============================================================
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { callGeminiWithRetry } from './geminiService.js';
 
 let model = null;
 
 export function initJobRecommender(geminiModel) {
     model = geminiModel;
-}
-
-function parseGeminiJSON(text) {
-    let jsonText = text;
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (jsonMatch) jsonText = jsonMatch[0];
-    return JSON.parse(jsonText);
 }
 
 /**
@@ -84,11 +77,10 @@ Respond in valid JSON only (no markdown):
 }`;
 
     try {
-        const result = await model.generateContent(prompt);
-        const data = parseGeminiJSON(result.response.text());
+        const data = await callGeminiWithRetry(prompt);
 
         // Sort recommendations by match score
-        if (data.recommendations) {
+        if (data && data.recommendations) {
             data.recommendations.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
         }
 
@@ -98,3 +90,4 @@ Respond in valid JSON only (no markdown):
         return { error: true, message: 'Could not generate job recommendations.' };
     }
 }
+

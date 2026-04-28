@@ -55,7 +55,7 @@ function parseGeminiJSON(text) {
  * @param {number} timeoutMs - Timeout per attempt in ms (default 45s)
  * @returns {Object} - Parsed JSON response
  */
-async function callGeminiWithRetry(prompt, retries = 3, timeoutMs = 45000) {
+export async function callGeminiWithRetry(prompt, retries = 3, timeoutMs = 45000) {
     for (let attempt = 0; attempt < retries; attempt++) {
         try {
             const result = await Promise.race([

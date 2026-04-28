@@ -947,8 +947,21 @@
     // ── Job Recommendations & Market Intelligence Rendering
     function renderJobRecommendations(jobs) {
         const container = document.getElementById('jobs-content');
+        if (!container) return;
         
         let html = '';
+
+        // Handle error state
+        if (!jobs || jobs.error) {
+            container.innerHTML = `
+                <div style="padding: 30px; text-align: center; background: rgba(255, 171, 64, 0.05); border: 1px dashed rgba(255, 171, 64, 0.3); border-radius: 16px;">
+                    <div style="font-size: 2.5rem; margin-bottom: 15px;">🤖</div>
+                    <h4 style="color: var(--accent-orange); margin-bottom: 8px;">Market Intelligence Temporarily Unavailable</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; max-width: 400px; margin: 0 auto;">Our AI engine is currently experiencing high demand. Please try again in a few minutes to unlock tailored job matches and market insights.</p>
+                </div>
+            `;
+            return;
+        }
 
         // Market Intelligence
         if (jobs.marketIntelligence) {
@@ -1021,6 +1034,15 @@
             `).join('');
             
             html += `</div>`;
+        }
+
+        // If nothing was rendered, show a "no results" message
+        if (!html) {
+            html = `
+                <div style="padding: 30px; text-align: center; border: 1px dashed var(--border-subtle); border-radius: 12px;">
+                    <p style="color: var(--text-secondary); margin: 0;">No specific job matches found for your profile. Try adding more skills to your resume for better results.</p>
+                </div>
+            `;
         }
 
         container.innerHTML = html;
