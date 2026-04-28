@@ -413,7 +413,7 @@
         loadingSection.style.display = '';
         window.scrollTo({ top: 0, behavior: 'smooth' });
 
-        const steps = ['step-extract', 'step-nlp', 'step-skills', 'step-ai', 'step-rewrite', 'step-roadmap', 'step-interview', 'step-score'];
+        const steps = ['step-extract', 'step-nlp', 'step-skills', 'step-ai', 'step-rewrite', 'step-roadmap', 'step-interview', 'step-jobs', 'step-score'];
         animateLoadingSteps(steps);
 
         const formData = new FormData();
@@ -483,9 +483,29 @@
         renderSkills(data.resumeSkills);
         renderSections(data.sectionAnalysis);
         renderAIInsights(llm);
-        renderRoadmap(data.skillGapRoadmap);
-        renderMockInterview(data.mockInterview);
-        renderRewrite(data.rewriteSuggestions);
+        
+        // Roadmap, Interview, Rewrite — Explicitly show if present
+        if (data.skillGapRoadmap && !data.skillGapRoadmap.error) {
+            document.getElementById('roadmap-card').style.display = 'block';
+            renderRoadmap(data.skillGapRoadmap);
+        } else {
+            document.getElementById('roadmap-card').style.display = 'none';
+        }
+
+        if (data.mockInterview && !data.mockInterview.error) {
+            document.getElementById('interview-card').style.display = 'block';
+            renderMockInterview(data.mockInterview);
+        } else {
+            document.getElementById('interview-card').style.display = 'none';
+        }
+
+        if (data.rewriteSuggestions && !data.rewriteSuggestions.error) {
+            document.getElementById('rewrite-card').style.display = 'block';
+            renderRewrite(data.rewriteSuggestions);
+        } else {
+            document.getElementById('rewrite-card').style.display = 'none';
+        }
+
         renderSuggestions(ats.suggestions, llm);
 
         // Semantic Match (only when JD provided)
@@ -509,14 +529,12 @@
         } catch (e) { console.warn('XAI render failed:', e); document.getElementById('xai-card').style.display = 'none'; }
 
         // Job Recommendations & Market Intelligence
-        try {
-            if (data.jobRecommendations && !data.jobRecommendations.error) {
-                document.getElementById('jobs-card').style.display = 'block';
-                renderJobRecommendations(data.jobRecommendations);
-            } else {
-                document.getElementById('jobs-card').style.display = 'none';
-            }
-        } catch (e) { console.warn('Jobs render failed:', e); document.getElementById('jobs-card').style.display = 'none'; }
+        if (data.jobRecommendations) {
+            document.getElementById('jobs-card').style.display = 'block';
+            renderJobRecommendations(data.jobRecommendations);
+        } else {
+            document.getElementById('jobs-card').style.display = 'none';
+        }
     }
 
     // ── JD Match Banner ──────────────────────────────────────
