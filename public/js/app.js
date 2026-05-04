@@ -1058,6 +1058,70 @@
         container.innerHTML = html;
     }
 
+    // ── Missing Render Functions ──────────────────────────────
 
+    function renderRoadmap(roadmap) {
+        const container = document.getElementById("roadmap-content");
+        if (!container) return;
+        let html = `<div style="margin-bottom: 20px;"><h4 style="color:var(--text-primary);">Current Level: ${roadmap.currentLevel || "Unknown"}</h4><p style="color:var(--text-secondary);">${roadmap.careerTrajectory || ""}</p></div>`;
+        
+        if (roadmap.skillGaps && roadmap.skillGaps.length > 0) {
+            html += `<h5 style="color:var(--text-primary); margin-top:15px;">Skill Gaps</h5><ul style="color:var(--text-secondary); padding-left:20px;">`;
+            roadmap.skillGaps.forEach(gap => {
+                html += `<li style="margin-bottom: 8px;"><strong>${gap.skill}</strong> <span style="background:rgba(255,171,64,0.1);color:#ffab40;padding:2px 6px;border-radius:4px;font-size:0.8rem;">${gap.priority} Priority</span>: ${gap.reason}</li>`;
+            });
+            html += `</ul>`;
+        }
+        
+        if (roadmap.learningRoadmap && roadmap.learningRoadmap.length > 0) {
+            html += `<h5 style="color:var(--text-primary); margin-top:15px; margin-bottom:10px;">Learning Roadmap</h5>`;
+            roadmap.learningRoadmap.forEach(phase => {
+                html += `<div style="background:var(--overlay-glass); padding:15px; margin-bottom:10px; border:1px solid var(--border-subtle); border-radius:8px;">
+                    <div style="font-weight:bold; color:var(--accent-blue); margin-bottom:5px;">${phase.phase}: ${phase.title} <span style="color:var(--text-muted); font-weight:normal; font-size:0.9rem;">(${phase.duration})</span></div>
+                    <div style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:5px;"><strong>Skills:</strong> ${(phase.skills||[]).join(", ")}</div>
+                    <div style="font-size:0.9rem; color:var(--text-secondary);"><strong>Milestone:</strong> ${phase.milestone}</div>
+                </div>`;
+            });
+        }
+        container.innerHTML = html;
+    }
+
+    function renderMockInterview(mock) {
+        const container = document.getElementById("interview-content");
+        if (!container) return;
+        let html = `<div style="margin-bottom: 20px;"><h4 style="color:var(--text-primary); margin:0;">Role: ${mock.candidateRole || "Candidate"}</h4><p style="color:var(--text-muted); font-size:0.9rem; margin-top:4px;">Difficulty: ${mock.difficultyLevel || "Medium"}</p></div>`;
+        
+        if (mock.questions && mock.questions.length > 0) {
+            html += `<div style="display:grid; gap:15px;">`;
+            mock.questions.forEach((q, i) => {
+                html += `<div style="background:var(--overlay-glass); border:1px solid var(--border-subtle); padding:15px; border-radius:12px;">
+                    <div style="font-weight:600; font-size:1.05rem; color:var(--text-primary); margin-bottom:8px;">Q${i+1}: ${q.question}</div>
+                    <div style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:8px;"><strong>Why they ask this:</strong> ${q.purpose}</div>
+                    <div style="font-size:0.9rem; color:var(--accent-green); background:rgba(0,230,118,0.05); padding:10px; border-radius:6px;"><strong>Ideal Answer Key Points:</strong><br> • ${(q.idealAnswerKeyPoints||[]).join("<br> • ")}</div>
+                </div>`;
+            });
+            html += `</div>`;
+        }
+        container.innerHTML = html;
+    }
+
+    function renderRewrite(rewrite) {
+        const container = document.getElementById("rewrite-content");
+        if (!container) return;
+        let html = "";
+        
+        if (rewrite.rewrittenSummary) {
+            html += `<div style="margin-bottom:20px;"><h4 style="color:var(--text-primary); margin-bottom:10px;">✨ AI Optimized Summary</h4><div style="background:var(--overlay-glass); border:1px solid var(--border-subtle); padding:15px; border-radius:8px; color:var(--text-secondary); line-height:1.6; position:relative;"><button class="btn-copy" onclick="copyText(this, \`${rewrite.rewrittenSummary.replace(/`/g, "")}\`)" style="position:absolute; top:10px; right:10px; background:var(--bg-elevated); border:1px solid var(--border-default); color:var(--text-primary); padding:4px 8px; border-radius:4px; font-size:0.8rem; cursor:pointer;">📋 Copy</button>${rewrite.rewrittenSummary}</div></div>`;
+        }
+        
+        if (rewrite.rewrittenExperience && rewrite.rewrittenExperience.length > 0) {
+            html += `<div style="margin-bottom:20px;"><h4 style="color:var(--text-primary); margin-bottom:10px;">💼 High-Impact Experience Bullets</h4><div style="background:var(--overlay-glass); border:1px solid var(--border-subtle); padding:20px 20px 20px 40px; border-radius:8px; color:var(--text-secondary); line-height:1.6;"><ul style="margin:0;">`;
+            rewrite.rewrittenExperience.forEach(b => {
+                html += `<li style="margin-bottom:8px;">${b}</li>`;
+            });
+            html += `</ul></div></div>`;
+        }
+        container.innerHTML = html;
+    }
 
 })();
