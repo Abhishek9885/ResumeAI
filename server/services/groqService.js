@@ -79,8 +79,21 @@ export async function callGroqWithRetry(prompt, retries = 3, timeoutMs = 90000) 
             const isLastAttempt = attempt === retries - 1;
             console.error(`❌ Groq attempt ${attempt + 1}/${retries} failed: ${err.message}`);
             if (isLastAttempt) throw err;
-            // Exponential backoff with jitter
-            const backoffMs = (1000 * Math.pow(2, attempt)) + (Math.random() * 500);
+            
+            let backoffMs = (1000 * Math.pow(2, attempt)) + (Math.random() * 500);
+            
+            // If it's a rate limit error, parse the required wait time
+            if (err.message && err.message.includes('try again in')) {
+                const match = err.message.match(/try again in ([\d\.]+)s/);
+                if (match && match[1]) {
+                    // Add 1s buffer to the requested wait time
+                    backoffMs = (parseFloat(match[1]) * 1000) + 1000;
+                } else {
+                    backoffMs = 15000; // default 15s wait for rate limit
+                }
+                console.warn(`⏳ Rate limit hit. Waiting ${Math.round(backoffMs/1000)}s before retry...`);
+            }
+            
             await new Promise(r => setTimeout(r, backoffMs));
         }
     }
