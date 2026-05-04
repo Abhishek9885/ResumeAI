@@ -109,58 +109,52 @@ router.post('/',
             console.log('🤖 Running optimized AI pipeline (3 bundled calls)...');
             const skillNames = resumeSkills.all.map(s => s.name || s);
 
-            const [
-                coreResult,
-                careerResult,
-                interviewResult,
-                ...semanticResults
-            ] = await Promise.allSettled([
-                analyzeResume(resumeText, jobDescription), // Core Analysis + Rewrite
-                generateJobRecommendations(resumeText, skillNames, null, jobDescription), // Job Matches + Roadmap
-                generateMockInterview(resumeText, jobDescription),
-                // Semantic matching only if JD provided and embeddings available
-                ...(jobDescription && isSemanticAvailable()
-                    ? [computeSemanticMatch(resumeText, jobDescription), findSemanticSkillMatches(skillNames, jobDescription)]
-                    : [])
-            ]);
-
-            // Extract values, logging any failures but continuing gracefully
-            const extract = (result, name) => {
-                if (result.status === 'fulfilled') return result.value;
-                console.error(`❌ ${name} failed:`, result.reason?.message);
-                return null;
-            };
-
-            const coreData = extract(coreResult, 'CoreAnalysis');
-            if (coreData && !coreData.error) {
-                llmAnalysis = coreData;
-                rewriteSuggestions = coreData.rewriteSuggestions;
-            } else if (coreData?.error) {
-                console.warn('⚠️ CoreAnalysis returned error:', coreData.message);
+            // Run sequentially to avoid TPM rate limits on Groq free tier
+            try {
+                const coreData = await analyzeResume(resumeText, jobDescription);
+                if (coreData && !coreData.error) {
+                    llmAnalysis = coreData;
+                    rewriteSuggestions = coreData.rewriteSuggestions;
+                } else if (coreData?.error) {
+                    console.warn('⚠️ CoreAnalysis returned error:', coreData.message);
+                }
+            } catch (err) {
+                console.error(`❌ CoreAnalysis failed:`, err.message);
             }
 
-            const careerData = extract(careerResult, 'CareerInsights');
-            if (careerData && !careerData.error) {
-                jobRecommendations = careerData;
-                skillGapRoadmap = careerData.careerRoadmap;
-            } else if (careerData?.error) {
-                console.warn('⚠️ CareerInsights returned error:', careerData.message);
-                // Still provide structure even if API failed
-                jobRecommendations = careerData;
+            try {
+                const careerData = await generateJobRecommendations(resumeText, skillNames, null, jobDescription);
+                if (careerData && !careerData.error) {
+                    jobRecommendations = careerData;
+                    skillGapRoadmap = careerData.careerRoadmap;
+                } else if (careerData?.error) {
+                    console.warn('⚠️ CareerInsights returned error:', careerData.message);
+                    jobRecommendations = careerData;
+                }
+            } catch (err) {
+                console.error(`❌ CareerInsights failed:`, err.message);
             }
 
-            const interviewData = extract(interviewResult, 'generateMockInterview');
-            if (interviewData && !interviewData.error) {
-                mockInterview = interviewData;
-            } else if (interviewData?.error) {
-                console.warn('⚠️ MockInterview returned error:', interviewData.message);
+            try {
+                const interviewData = await generateMockInterview(resumeText, jobDescription);
+                if (interviewData && !interviewData.error) {
+                    mockInterview = interviewData;
+                } else if (interviewData?.error) {
+                    console.warn('⚠️ MockInterview returned error:', interviewData.message);
+                }
+            } catch (err) {
+                console.error(`❌ MockInterview failed:`, err.message);
             }
 
             if (jobDescription && isSemanticAvailable()) {
-                const semanticMatchData = extract(semanticResults[0], 'computeSemanticMatch');
-                const semanticSkillData = extract(semanticResults[1], 'findSemanticSkillMatches');
-                if (semanticMatchData && !semanticMatchData.error) semanticMatch = semanticMatchData;
-                if (semanticSkillData && !semanticSkillData.error) semanticSkillMatches = semanticSkillData;
+                try {
+                    const semanticMatchData = await computeSemanticMatch(resumeText, jobDescription);
+                    if (semanticMatchData && !semanticMatchData.error) semanticMatch = semanticMatchData;
+                } catch(e) {}
+                try {
+                    const semanticSkillData = await findSemanticSkillMatches(skillNames, jobDescription);
+                    if (semanticSkillData && !semanticSkillData.error) semanticSkillMatches = semanticSkillData;
+                } catch(e) {}
             }
         }
 

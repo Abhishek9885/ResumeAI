@@ -64,7 +64,8 @@ export async function callGroqWithRetry(prompt, retries = 3, timeoutMs = 90000) 
                 model: model,
                 messages: [{ role: 'user', content: prompt }],
                 temperature: 0.7,
-                max_tokens: 2048
+                max_tokens: 2048,
+                response_format: { type: 'json_object' }
             };
 
             const result = await Promise.race([
