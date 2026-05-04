@@ -1096,8 +1096,8 @@
             mock.questions.forEach((q, i) => {
                 html += `<div style="background:var(--overlay-glass); border:1px solid var(--border-subtle); padding:15px; border-radius:12px;">
                     <div style="font-weight:600; font-size:1.05rem; color:var(--text-primary); margin-bottom:8px;">Q${i+1}: ${q.question}</div>
-                    <div style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:8px;"><strong>Why they ask this:</strong> ${q.purpose}</div>
-                    <div style="font-size:0.9rem; color:var(--accent-green); background:rgba(0,230,118,0.05); padding:10px; border-radius:6px;"><strong>Ideal Answer Key Points:</strong><br> • ${(q.idealAnswerKeyPoints||[]).join("<br> • ")}</div>
+                    <div style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:8px;"><strong>Interviewer Tip:</strong> ${q.tip || q.purpose || "Assess candidate's approach."}</div>
+                    <div style="font-size:0.9rem; color:var(--accent-green); background:rgba(0,230,118,0.05); padding:10px; border-radius:6px;"><strong>Sample Answer Outline:</strong><br> ${q.sampleAnswer || "Provide a structured response."}</div>
                 </div>`;
             });
             html += `</div>`;
