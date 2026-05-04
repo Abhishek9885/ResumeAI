@@ -53,10 +53,7 @@ function parseGroqJSON(text) {
  * @returns {Object} - Parsed JSON response
  */
 export async function callGroqWithRetry(prompt, retries = 3, timeoutMs = 90000) {
-    const model = process.env.GROQ_MODEL;
-    if (!model) {
-        throw new Error('GROQ_MODEL not configured in .env');
-    }
+    const model = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
 
     for (let attempt = 0; attempt < retries; attempt++) {
         try {
