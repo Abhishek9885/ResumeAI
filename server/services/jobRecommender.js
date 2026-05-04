@@ -4,19 +4,19 @@
 // LinkedIn/Naukri Smart Match style recommendations
 // ============================================================
 
-import { callGroqWithRetry } from './groqService.js';
+import { callGroqWithRetry, isGroqAvailable } from './groqService.js';
 
-let model = null;
-
+// initJobRecommender kept for backward compatibility — Groq availability
+// is now checked via isGroqAvailable() to work correctly in all cluster workers.
 export function initJobRecommender(groqClient) {
-    model = groqClient;
+    // no-op: groqService manages its own singleton
 }
 
 /**
  * Generate comprehensive career insights (Job Matches + Skill Gap Roadmap)
  */
 export async function generateJobRecommendations(resumeText, detectedSkills, candidateProfile = null, jobDescription = null) {
-    if (!model) {
+    if (!isGroqAvailable()) {
         console.warn('⚠️ Groq API not available for job recommendations');
         return null;
     }
