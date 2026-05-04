@@ -23,12 +23,19 @@ async function fetchGithubRepos(username) {
             headers['Authorization'] = `Bearer ${token.trim()}`;
         }
 
-        const response = await fetch(url, { headers });
+        let response = await fetch(url, { headers });
+
+        // If token is expired/invalid (401), retry without auth token
+        if (response.status === 401) {
+            console.warn('⚠️ GitHub token invalid or expired — retrying without auth.');
+            delete headers['Authorization'];
+            response = await fetch(url, { headers });
+        }
 
         if (!response.ok) {
             if (response.status === 404) throw new Error("GitHub user not found.");
-            if (response.status === 403) throw new Error("GitHub API rate limit exceeded.");
-            throw new Error(`GitHub API error: ${response.statusText}`);
+            if (response.status === 403) throw new Error("GitHub API rate limit exceeded. Try again later.");
+            throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
         }
 
         const data = await response.json();
@@ -90,7 +97,7 @@ Respond with a JSON object ONLY:
     ]
 }`;
 
-        const model = process.env.GROQ_MODEL || 'mixtral-8x7b'; // Fallback model
+        const model = process.env.GROQ_MODEL || 'llama-3.1-8b-instant'; // Fallback model
         const payload = {
             model: model,
             messages: [{ role: 'user', content: prompt }],
