@@ -220,7 +220,7 @@
     // ── Gemini Status ────────────────────────────────────────
     async function checkLLMStatus() {
         try {
-            const res = await fetch('/api/health');
+            const res = await fetch('/api/health', { cache: 'no-store' });
             const data = await res.json();
             const dot = geminiBadge.querySelector('.badge-dot');
             if (data.geminiEnabled) {

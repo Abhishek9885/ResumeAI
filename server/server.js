@@ -13,7 +13,7 @@ import rateLimit from 'express-rate-limit';
 import analyzeRouter from './routes/analyze.js';
 import recruiterRouter from './routes/recruiterRoute.js';
 import portfolioRouter from './routes/portfolioRoute.js';
-import { initGroq } from './services/groqService.js';
+import { initGroq, isGroqAvailable } from './services/groqService.js';
 import cluster from 'cluster';
 import os from 'os';
 
@@ -87,7 +87,7 @@ app.get('/api/health', (req, res) => {
     res.json({
         status: 'ok',
         timestamp: new Date().toISOString(),
-        geminiEnabled: Boolean(process.env.GROQ_API_KEY && process.env.GROQ_API_KEY !== 'your_groq_api_key_here')
+        geminiEnabled: isGroqAvailable()
     });
 });
 
