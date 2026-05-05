@@ -15,7 +15,7 @@ export function getGroq() { return groq; }
 export function getApiKey() { return apiKey; }
 
 export function initGroq(key) {
-    if (!key || key === 'your_groq_api_key_here') {
+    if (!key || key.trim() === '' || key === 'your_groq_api_key_here') {
         console.log('⚠️  Groq API key not configured — LLM features disabled.');
         return false;
     }
