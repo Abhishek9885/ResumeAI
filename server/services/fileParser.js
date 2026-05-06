@@ -1,6 +1,4 @@
-// ============================================================
-// File Parser Service — Extracts text from PDF and DOCX files
-// ============================================================
+
 
 import pdfParse from 'pdf-parse';
 import mammoth from 'mammoth';

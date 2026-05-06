@@ -1,6 +1,4 @@
-// ============================================================
-// ATS Scorer — Resume quality scoring (no JD required)
-// ============================================================
+
 
 const EXPECTED_SECTIONS = [
     { name: 'Contact Information', patterns: ['email', 'phone', 'address', 'linkedin', 'github', 'portfolio', 'website'] },

@@ -1,7 +1,3 @@
-// ============================================================
-// Explainable AI Engine — Transparent Scoring Explanations
-// Shows WHY scores changed: "Score reduced due to missing X"
-// ============================================================
 
 /**
  * Generate human-readable explanations for all scoring decisions

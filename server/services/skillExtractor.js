@@ -1,6 +1,4 @@
-// ============================================================
-// Skill Extractor — Extracts and categorizes skills from text
-// ============================================================
+
 
 import { SKILL_DATABASE, ALL_SKILLS, SKILL_ALIASES } from '../data/skills.js';
 

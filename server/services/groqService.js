@@ -1,9 +1,4 @@
-// ============================================================
-// Groq API Service — Full AI Pipeline
-// Features: Resume Analysis, JD Matching, Section Scoring,
-//           Skill Gap + Learning Roadmap, Mock Interview, Rewrite
-// Using Groq's Lightning-Fast Inference
-// ============================================================
+
 
 import Groq from 'groq-sdk';
 import { initJobRecommender } from './jobRecommender.js';
