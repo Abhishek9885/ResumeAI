@@ -110,6 +110,26 @@
             });
         }
 
+        // ── Redirect result callbacks (fired by Firebase init after OAuth redirect) ──
+        window._onLoginSuccess = (user) => {
+            showToast(`✅ Welcome ${user.displayName || user.email}!`, 'info');
+            updateHeaderForLoggedInUser(user.displayName || user.email);
+            closeModal();
+        };
+
+        window._onLoginError = (error) => {
+            const code = error?.code;
+            let msg = `Login failed: ${error.message}`;
+            if (code === 'auth/unauthorized-domain') {
+                msg = `❌ Domain not authorized. Add "${window.location.hostname}" to Firebase → Authentication → Authorized Domains.`;
+            } else if (code === 'auth/operation-not-allowed') {
+                msg = `❌ GitHub sign-in not enabled in Firebase Console → Sign-in method.`;
+            } else if (code === 'auth/account-exists-with-different-credential') {
+                msg = `❌ Account already exists with this email. Try Google or email login instead.`;
+            }
+            showToast(msg, 'error');
+        };
+
         // ── Social Login Handlers ───────────────────────────
         const googleBtn = document.getElementById('login-google-btn');
         const githubSocialBtn = document.getElementById('login-github-social-btn');
@@ -117,52 +137,42 @@
         if (googleBtn) {
             googleBtn.addEventListener('click', () => {
                 if (!window.firebaseAuth) return showToast('Firebase not initialized', 'error');
-                handleFirebaseLogin(googleBtn, 'Google', window.firebaseAuth.loginWithGoogle(), closeModal);
+                handleFirebaseLogin(googleBtn, 'Google', window.firebaseAuth.loginWithGoogle);
             });
         }
 
         if (githubSocialBtn) {
             githubSocialBtn.addEventListener('click', () => {
                 if (!window.firebaseAuth) return showToast('Firebase not initialized', 'error');
-                handleFirebaseLogin(githubSocialBtn, 'GitHub', window.firebaseAuth.loginWithGitHub(), closeModal);
+                handleFirebaseLogin(githubSocialBtn, 'GitHub', window.firebaseAuth.loginWithGitHub);
             });
         }
     }
 
-    async function handleFirebaseLogin(btn, providerName, loginPromise, closeModalFn) {
+    // Redirect-based login: triggers navigation away from the page.
+    // The result is handled by _onLoginSuccess / _onLoginError set in setupLoginModal,
+    // which are called by the getRedirectResult() handler in index.html on next page load.
+    async function handleFirebaseLogin(btn, providerName, loginFn) {
         const originalHTML = btn.innerHTML;
         btn.disabled = true;
         btn.innerHTML = `
             <svg class="login-spinner" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10" stroke-dasharray="31.4 31.4" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" dur="0.8s" from="0 12 12" to="360 12 12" repeatCount="indefinite"/></circle></svg>
-            Connecting to ${providerName}...
+            Redirecting to ${providerName}...
         `;
 
         try {
-            const result = await loginPromise;
-            const user = result.user;
-            
-            // Save to Firestore Database
-            await window.firebaseAuth.saveUserToDb(user);
-
-            btn.innerHTML = `✅ Connected with ${providerName}!`;
-            btn.style.borderColor = 'rgba(0, 230, 118, 0.4)';
-            btn.style.background = 'rgba(0, 230, 118, 0.08)';
-            btn.style.color = 'var(--accent-green)';
-
-            showToast(`✅ Welcome ${user.displayName || user.email}!`, 'info');
-            updateHeaderForLoggedInUser(user.displayName || user.email);
-
-            setTimeout(() => {
-                btn.innerHTML = originalHTML;
-                btn.disabled = false;
-                btn.style.borderColor = '';
-                btn.style.background = '';
-                btn.style.color = '';
-                closeModalFn();
-            }, 1200);
+            await loginFn(); // Triggers page redirect — page navigates away to OAuth provider
         } catch (error) {
-            console.error("Login failed:", error);
-            showToast(`Login failed: ${error.message}`, 'error');
+            // Only runs if redirect itself fails (network error, config error, etc.)
+            console.error('Login redirect failed:', error);
+            const code = error?.code;
+            let msg = `Login failed: ${error.message}`;
+            if (code === 'auth/unauthorized-domain') {
+                msg = `❌ Domain not authorized: "${window.location.hostname}". Add it in Firebase → Authentication → Authorized Domains.`;
+            } else if (code === 'auth/operation-not-allowed') {
+                msg = `❌ GitHub sign-in not enabled. Enable it in Firebase → Sign-in method.`;
+            }
+            showToast(msg, 'error');
             btn.innerHTML = originalHTML;
             btn.disabled = false;
         }

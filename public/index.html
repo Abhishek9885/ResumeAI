@@ -835,7 +835,7 @@
     <!-- Firebase Integration -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, GithubAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, GithubAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -852,15 +852,37 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // ── Handle redirect result when user returns from OAuth provider ──
+        // This runs every page load; only does something after a redirect login.
+        getRedirectResult(auth).then(async (result) => {
+            if (!result || !result.user) return;
+            const user = result.user;
+            // Save user to Firestore
+            const userRef = doc(db, 'users', user.uid);
+            await setDoc(userRef, {
+                uid: user.uid,
+                email: user.email,
+                displayName: user.displayName,
+                photoURL: user.photoURL,
+                providerData: user.providerData.map(p => p.providerId),
+                lastLogin: serverTimestamp()
+            }, { merge: true });
+            // Notify app.js
+            if (typeof window._onLoginSuccess === 'function') window._onLoginSuccess(user);
+        }).catch((error) => {
+            console.error('Redirect login error:', error);
+            if (typeof window._onLoginError === 'function') window._onLoginError(error);
+        });
+
         // Expose Firebase functionality globally for app.js
         window.firebaseAuth = {
             loginWithGoogle: async () => {
                 const provider = new GoogleAuthProvider();
-                return await signInWithPopup(auth, provider);
+                await signInWithRedirect(auth, provider);
             },
             loginWithGitHub: async () => {
                 const provider = new GithubAuthProvider();
-                return await signInWithPopup(auth, provider);
+                await signInWithRedirect(auth, provider);
             },
             onAuthStateChanged: (callback) => onAuthStateChanged(auth, callback),
             saveUserToDb: async (user) => {
