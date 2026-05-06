@@ -47,19 +47,22 @@ router.post('/analyze', upload.array('resumes', 10), async (req, res) => {
 
         console.log(`📋 Recruiter: Analyzing ${req.files.length} resumes against JD...`);
 
-        // Process each resume in parallel
-        const candidatePromises = req.files.map(async (file, index) => {
+        // Process each resume sequentially to avoid Groq API rate limits (HTTP 429)
+        const candidates = [];
+        for (let index = 0; index < req.files.length; index++) {
+            const file = req.files[index];
             try {
                 console.log(`  📄 Processing resume ${index + 1}: ${file.originalname}`);
 
                 // Step 1: Extract text
                 const resumeText = await extractText(file.buffer, file.originalname);
                 if (resumeText.trim().length < 50) {
-                    return {
+                    candidates.push({
                         fileName: file.originalname,
                         error: 'Extracted text too short',
                         score: 0
-                    };
+                    });
+                    continue;
                 }
 
                 // Step 2: NLP Processing
@@ -122,7 +125,7 @@ router.post('/analyze', upload.array('resumes', 10), async (req, res) => {
                 else if (compositeScore >= 40) rankBadge = { label: 'Fair', color: '#ffab40' };
                 else rankBadge = { label: 'Weak', color: '#ff5252' };
 
-                return {
+                candidates.push({
                     fileName: file.originalname,
                     candidateName: llmAnalysis?.candidateProfile?.estimatedRole
                         ? `${file.originalname.replace(/\.[^.]+$/, '')} — ${llmAnalysis.candidateProfile.estimatedRole}`
@@ -145,20 +148,18 @@ router.post('/analyze', upload.array('resumes', 10), async (req, res) => {
                     strengths: llmAnalysis?.strengths || [],
                     weaknesses: llmAnalysis?.weaknesses || [],
                     wordCount: resumeNLP.tokenCount
-                };
+                });
 
             } catch (err) {
                 console.error(`  ❌ Failed to process ${file.originalname}:`, err.message);
-                return {
+                candidates.push({
                     fileName: file.originalname,
                     error: err.message,
                     compositeScore: 0,
                     rankBadge: { label: 'Error', color: '#ff5252' }
-                };
+                });
             }
-        });
-
-        const candidates = await Promise.all(candidatePromises);
+        }
 
         // Sort by composite score (descending)
         candidates.sort((a, b) => (b.compositeScore || 0) - (a.compositeScore || 0));
