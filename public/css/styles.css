@@ -294,6 +294,53 @@ body {
     transform: scale(0.95);
 }
 
+/* ── Navigation Tabs ───────────────────────────────────────── */
+.nav-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--glass-bg);
+    border-radius: var(--radius-md);
+    padding: 4px;
+    border: 1px solid var(--glass-border);
+}
+
+.nav-tab {
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all 0.2s var(--ease-out);
+    font-family: var(--font-body);
+}
+
+.nav-tab:hover {
+    color: var(--text-primary);
+    background: var(--overlay-medium);
+}
+
+.nav-tab.active {
+    background: var(--gradient-primary);
+    color: white;
+    box-shadow: var(--shadow-sm);
+}
+
+body.light-mode .nav-tabs {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-mode .nav-tab {
+    color: var(--text-secondary);
+}
+
+body.light-mode .nav-tab.active {
+    background: rgba(37, 99, 235, 0.1);
+    color: var(--accent-blue);
+    box-shadow: none;
+}
+
 .header-badge {
     display: flex;
     align-items: center;
