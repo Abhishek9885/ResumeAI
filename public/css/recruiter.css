@@ -629,6 +629,9 @@ body.light-mode .rec-filter-input {
     border-color: rgba(0, 0, 0, 0.15);
     color: #0f172a;
 }
+body.light-mode .rec-filter-input::placeholder {
+    color: rgba(0, 0, 0, 0.4);
+}
 
 body.light-mode .nav-tab { color: var(--text-secondary); }
 body.light-mode .nav-tab.active { 
@@ -647,3 +650,14 @@ body.light-mode .rec-detail-grid { background: #f8fafc; border-color: rgba(0, 0,
 body.light-mode .rec-detail-section h4 { color: #334155; }
 body.light-mode .rec-detail-list li { color: #475569; }
 body.light-mode .rec-detail-list li::before { color: #94a3b8; }
+body.light-mode .btn-rec-new { 
+    background: #ffffff; 
+    border-color: rgba(0, 0, 0, 0.15); 
+    color: #0f172a; 
+    font-weight: 600;
+}
+body.light-mode .btn-rec-new:hover { 
+    background: #f1f5f9; 
+    border-color: rgba(0, 0, 0, 0.2); 
+    color: #2563eb;
+}
