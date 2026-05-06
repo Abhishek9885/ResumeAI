@@ -154,7 +154,7 @@
         document.getElementById('rec-stat-avg').textContent = s.avgScore || 0;
         document.getElementById('rec-stat-excellent').textContent = s.excellentCount || 0;
         document.getElementById('rec-stat-strong').textContent = s.strongCount || 0;
-        document.getElementById('rec-stat-time').textContent = data.processingTime || '-';
+        document.getElementById('rec-stat-time').textContent = data.processingTime ? (parseInt(data.processingTime) / 1000).toFixed(1) + 's' : '-';
 
         renderCandidateTable(allCandidates);
     }
@@ -187,8 +187,8 @@
                         <div class="rec-score-label-sm">ATS</div>
                     </div>
                     <div class="rec-score-cell">
-                        <div class="rec-score-val" style="color:${c.semanticScore >= 70 ? '#00e676' : c.semanticScore >= 50 ? '#ffd740' : '#ffab40'}">${c.semanticScore || '-'}</div>
-                        <div class="rec-score-label-sm">Semantic</div>
+                        <div class="rec-score-val" style="color:${(c.semanticScore || c.jdMatchScore) >= 70 ? '#00e676' : (c.semanticScore || c.jdMatchScore) >= 50 ? '#ffd740' : '#ffab40'}">${c.semanticScore || c.jdMatchScore || '-'}</div>
+                        <div class="rec-score-label-sm">JD Match</div>
                     </div>
                     <div class="rec-skill-tags-cell">
                         ${skills.map(s => `<span class="rec-skill-mini">${s}</span>`).join('')}

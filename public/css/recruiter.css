@@ -583,48 +583,67 @@
 /* ── Light Mode Overrides ───────────────────────────────── */
 
 body.light-mode .rec-upload-card {
-    background: rgba(0, 0, 0, 0.02);
-    border-color: rgba(0, 0, 0, 0.08);
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 body.light-mode .rec-jd-textarea {
-    background: rgba(0, 0, 0, 0.02);
-    border-color: rgba(0, 0, 0, 0.1);
-    color: #1a1a2e;
+    background: #f8fafc;
+    border-color: rgba(0, 0, 0, 0.15);
+    color: #0f172a;
 }
 
-body.light-mode .rec-jd-textarea::placeholder { color: rgba(0, 0, 0, 0.3); }
+body.light-mode .rec-jd-textarea::placeholder { color: rgba(0, 0, 0, 0.4); }
 
 body.light-mode .rec-dropzone {
-    border-color: rgba(0, 0, 0, 0.12);
+    border-color: rgba(0, 0, 0, 0.2);
+    background: #f8fafc;
 }
 
-body.light-mode .rec-hero h1 { color: #1a1a2e; }
-body.light-mode .rec-hero p { color: rgba(0, 0, 0, 0.5); }
+body.light-mode .rec-hero h1 { color: #0f172a; }
+body.light-mode .rec-hero p { color: rgba(0, 0, 0, 0.6); }
+
 body.light-mode .rec-results-card {
-    background: rgba(0, 0, 0, 0.02);
-    border-color: rgba(0, 0, 0, 0.08);
-}
-body.light-mode .rec-candidate-name { color: #1a1a2e; }
-body.light-mode .rec-candidate-row { border-bottom-color: rgba(0, 0, 0, 0.06); }
-body.light-mode .rec-candidate-row:hover { background: rgba(0, 0, 0, 0.02); }
-body.light-mode .rec-stat-card {
-    background: rgba(0, 0, 0, 0.02);
-    border-color: rgba(0, 0, 0, 0.06);
-}
-body.light-mode .rec-filter-input {
-    background: rgba(0, 0, 0, 0.03);
+    background: #ffffff;
     border-color: rgba(0, 0, 0, 0.1);
-    color: #1a1a2e;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
+
+body.light-mode .rec-candidate-name { color: #0f172a; font-weight: 700; }
+body.light-mode .rec-candidate-role { color: #475569; font-weight: 500; }
+body.light-mode .rec-candidate-row { border-bottom-color: rgba(0, 0, 0, 0.1); }
+body.light-mode .rec-candidate-row:hover { background: #f8fafc; }
+
+body.light-mode .rec-stat-card {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+body.light-mode .rec-stat-label { color: #64748b; font-weight: 600; }
+body.light-mode .rec-score-label-sm { color: #64748b; font-weight: 600; }
+
+body.light-mode .rec-filter-input {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.15);
+    color: #0f172a;
+}
+
 body.light-mode .nav-tab { color: var(--text-secondary); }
 body.light-mode .nav-tab.active { 
-    color: var(--accent-violet); 
-    background: rgba(124, 58, 237, 0.1); 
+    color: var(--accent-blue); 
+    background: rgba(37, 99, 235, 0.1); 
     box-shadow: none;
 }
 body.light-mode .nav-tabs {
-    background: rgba(0, 0, 0, 0.03);
-    border-color: rgba(0, 0, 0, 0.08);
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.1);
 }
-body.light-mode .rec-results-header h3 { color: #1a1a2e; }
+body.light-mode .rec-results-header h3 { color: #0f172a; }
+body.light-mode .rec-expand-btn { color: #2563eb; border-color: rgba(37, 99, 235, 0.2); font-weight: 600; }
+body.light-mode .rec-expand-btn:hover { background: rgba(37, 99, 235, 0.05); border-color: #2563eb; }
+body.light-mode .rec-detail-grid { background: #f8fafc; border-color: rgba(0, 0, 0, 0.08); }
+body.light-mode .rec-detail-section h4 { color: #334155; }
+body.light-mode .rec-detail-list li { color: #475569; }
+body.light-mode .rec-detail-list li::before { color: #94a3b8; }
