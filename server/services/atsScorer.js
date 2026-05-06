@@ -140,20 +140,30 @@ export function calculateATSScore({ sectionAnalysis, resumeText, resumeSkills, l
         contentQuality:  0.25
     };
 
-    // Skill density — require 30 skills for a perfect score
+    // Skill density — scale smoothly up to 40 skills instead of hard-capping at 30
     const skillCount = resumeSkills?.count || 0;
-    const skillDensityScore = Math.min(100, Math.round((skillCount / 30) * 100));
+    let skillDensityScore = Math.min(100, (skillCount / 40) * 100);
+    // Add micro-variance based on exact count to prevent identical scores
+    skillDensityScore += (skillCount % 5) * 0.5; 
+    skillDensityScore = Math.min(100, skillDensityScore);
 
     // Content quality — strict baseline of 15
     let contentScore = 15;
     if (formatting.hasQuantifiableResults) contentScore += 25;
-    if (formatting.actionVerbsUsed.length >= 6) contentScore += 20;
-    else if (formatting.actionVerbsUsed.length >= 4) contentScore += 12;
-    else if (formatting.actionVerbsUsed.length >= 2) contentScore += 6;
-    if (formatting.hasEmail) contentScore += 10;
-    if (formatting.hasPhone) contentScore += 8;
-    if (formatting.wordCount >= 400 && formatting.wordCount <= 900) contentScore += 12;
-    else if (formatting.wordCount >= 250) contentScore += 5;
+    
+    // Granular action verbs score
+    const verbCount = formatting.actionVerbsUsed?.length || 0;
+    contentScore += Math.min(25, verbCount * 2.5); // Up to 25 points for 10 verbs
+    
+    if (formatting.hasEmail) contentScore += 5;
+    if (formatting.hasPhone) contentScore += 5;
+    
+    // Word count granularity (Goldilocks zone 450 - 800)
+    const wc = formatting.wordCount || 0;
+    if (wc >= 450 && wc <= 800) contentScore += 15;
+    else if (wc >= 300 && wc < 450) contentScore += 10 + ((wc - 300) / 30); // 10 to 15
+    else if (wc > 800 && wc < 1000) contentScore += 15 - ((wc - 800) / 20); // 15 down to 5
+    else if (wc >= 150) contentScore += 5;
 
     // Penalty: weak/passive language patterns that hurt real ATS ranking
     const weakPhrases = [
