@@ -68,6 +68,7 @@
         settingsSidebar.innerHTML = `
             <div class="editor-panel settings-panel">
                 <h3><span style="font-size:1.2rem;">🎨</span> Resume Settings</h3>
+                <p class="panel-note">Choose a template, set one accent color, then tune the preview before exporting.</p>
                 
                 <div class="settings-group">
                     <span class="settings-label">Template Style</span>
@@ -323,6 +324,7 @@
             return;
         }
 
+        html += `<p class="panel-note panel-note-right">Apply the strongest suggestion first. The rest are quick edits you can copy into the resume or LinkedIn fields.</p>`;
         html += `<div class="sug-header-note">Click <strong>Apply →</strong> to instantly fill the resume field on the right.</div>`;
 
         if (rewrite.rewrittenSummary) {
