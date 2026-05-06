@@ -40,54 +40,76 @@ function analyzeFormatting(resumeText) {
     let score = 100;
 
     const wordCount = resumeText.split(/\s+/).length;
-    if (wordCount < 100) {
-        issues.push('Resume appears too short. Aim for at least 300-500 words.');
-        score -= 20;
+
+    // Word count penalties — stricter ranges
+    if (wordCount < 150) {
+        issues.push('Resume is very short. Aim for at least 400-600 words for a strong ATS score.');
+        score -= 30;
+    } else if (wordCount < 300) {
+        issues.push('Resume is too short. Add more details to experience, projects, and skills sections.');
+        score -= 18;
     } else if (wordCount > 2000) {
-        issues.push('Resume may be too long. Consider condensing to 1-2 pages.');
-        score -= 10;
+        issues.push('Resume may be too long. Consider condensing to 1-2 pages (600-900 words ideal).');
+        score -= 12;
+    } else if (wordCount >= 400 && wordCount <= 900) {
+        // Ideal range — no penalty, slight bonus reflected via not deducting
     }
 
+    // Special characters
     const specialCharRatio = (resumeText.match(/[^a-zA-Z0-9\s.,;:!?()'-]/g) || []).length / resumeText.length;
     if (specialCharRatio > 0.05) {
-        issues.push('High density of special characters. ATS systems may have trouble parsing.');
+        issues.push('High density of special characters detected. ATS systems may fail to parse this resume.');
+        score -= 18;
+    }
+
+    // Bullet points
+    const hasBullets = /[•\-\*\►\●\○\■\□\→\»]/g.test(resumeText);
+    if (!hasBullets) {
+        issues.push('No bullet points detected. Use bullet points to make achievements ATS-friendly and scannable.');
         score -= 15;
     }
 
-    const hasBullets = /[•\-\*\►\●\○\■\□\→\»]/g.test(resumeText);
-    const hasNumbers = /\d+[%\+]|\$\d+/g.test(resumeText);
-    if (!hasBullets && lines.length < 20) {
-        issues.push('Consider using bullet points to improve readability.');
-        score -= 10;
-    }
-
+    // Quantifiable results
+    const hasNumbers = /\d+[%\+]|\$\d+|\d+x\b|\d{1,3}(,\d{3})+/.test(resumeText);
     if (!hasNumbers) {
-        issues.push('Add quantifiable achievements (percentages, dollar amounts, metrics).');
-        score -= 10;
+        issues.push('No measurable achievements detected (%, $, numbers). Quantify your impact — e.g., "improved speed by 40%".');
+        score -= 18;
     }
 
+    // Action verbs — check count tiers
     const actionVerbs = ['led', 'managed', 'developed', 'created', 'implemented', 'designed',
         'built', 'launched', 'improved', 'increased', 'decreased', 'reduced',
         'achieved', 'delivered', 'optimized', 'streamlined', 'coordinated',
-        'established', 'initiated', 'spearheaded', 'orchestrated', 'mentored'];
+        'established', 'initiated', 'spearheaded', 'orchestrated', 'mentored',
+        'architected', 'engineered', 'automated', 'deployed', 'integrated',
+        'analyzed', 'researched', 'presented', 'collaborated', 'trained'];
     const textLower = resumeText.toLowerCase();
     const usedVerbs = actionVerbs.filter(v => textLower.includes(v));
-    if (usedVerbs.length < 3) {
-        issues.push('Use more action verbs (led, managed, developed, etc.) to describe achievements.');
+    if (usedVerbs.length < 2) {
+        issues.push('Very few action verbs found. Use strong action verbs like led, built, optimized, deployed.');
+        score -= 18;
+    } else if (usedVerbs.length < 4) {
+        issues.push('Limited action verbs. Aim for 5+ strong action verbs across your experience bullets.');
         score -= 10;
     }
 
-    // Email check
+    // Contact info
     const hasEmail = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(resumeText);
     if (!hasEmail) {
-        issues.push('No email address detected. Ensure contact information is present.');
-        score -= 10;
+        issues.push('No email address found. ATS systems require contact info — add your email.');
+        score -= 12;
     }
 
-    // Phone check
     const hasPhone = /(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/.test(resumeText);
     if (!hasPhone) {
         issues.push('No phone number detected. Include a contact phone number.');
+        score -= 8;
+    }
+
+    // LinkedIn presence
+    const hasLinkedIn = /linkedin\.com\/in\//i.test(resumeText) || /linkedin/i.test(resumeText);
+    if (!hasLinkedIn) {
+        issues.push('No LinkedIn profile detected. Adding a LinkedIn URL boosts ATS profile completeness.');
         score -= 5;
     }
 
@@ -117,17 +139,21 @@ export function calculateATSScore({ sectionAnalysis, resumeText, resumeSkills, l
         contentQuality: 0.25
     };
 
-    // Skill density — how many skills detected
+    // Skill density — require 25 skills for a perfect score (was 15 — too easy)
     const skillCount = resumeSkills?.count || 0;
-    const skillDensityScore = Math.min(100, Math.round((skillCount / 15) * 100));
+    const skillDensityScore = Math.min(100, Math.round((skillCount / 25) * 100));
 
-    // Content quality — action verbs, quantifiable results, length
-    let contentScore = 50;
-    if (formatting.hasQuantifiableResults) contentScore += 20;
-    if (formatting.actionVerbsUsed.length >= 5) contentScore += 15;
-    else if (formatting.actionVerbsUsed.length >= 3) contentScore += 10;
-    if (formatting.hasEmail) contentScore += 8;
-    if (formatting.hasPhone) contentScore += 7;
+    // Content quality — starts at 20 (not 50) for a realistic baseline
+    let contentScore = 20;
+    if (formatting.hasQuantifiableResults) contentScore += 22;   // big reward
+    if (formatting.actionVerbsUsed.length >= 6) contentScore += 22;
+    else if (formatting.actionVerbsUsed.length >= 4) contentScore += 14;
+    else if (formatting.actionVerbsUsed.length >= 2) contentScore += 7;
+    if (formatting.hasEmail) contentScore += 10;
+    if (formatting.hasPhone) contentScore += 8;
+    // Word count bonus — reward ideal length
+    if (formatting.wordCount >= 400 && formatting.wordCount <= 900) contentScore += 10;
+    else if (formatting.wordCount >= 250) contentScore += 5;
     contentScore = Math.min(100, contentScore);
 
     const components = {
@@ -143,9 +169,9 @@ export function calculateATSScore({ sectionAnalysis, resumeText, resumeSkills, l
     });
     atsScore = Math.round(atsScore);
 
-    // Blend with AI score if available
+    // Blend with AI score — reduced to 25% influence (was 40%) since Groq tends to be generous
     if (llmAnalysis && llmAnalysis.qualityScore && !llmAnalysis.error) {
-        atsScore = Math.round(atsScore * 0.6 + llmAnalysis.qualityScore * 0.4);
+        atsScore = Math.round(atsScore * 0.75 + llmAnalysis.qualityScore * 0.25);
     }
 
     let grade, gradeColor, gradeLabel;
