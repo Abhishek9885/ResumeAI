@@ -19,7 +19,6 @@
     const uploadSection = document.getElementById('upload-section');
     const loadingSection = document.getElementById('loading-section');
     const resultsSection = document.getElementById('results-section');
-    const geminiBadge = document.getElementById('gemini-badge');
     const btnNewAnalysis = document.getElementById('btn-new-analysis');
     const btnOpenEditor = document.getElementById('btn-open-editor');
 
@@ -46,7 +45,6 @@
         setupGitHubSync();
         setupGetStarted();
         setupLoginModal();
-        checkLLMStatus();
     }
 
     // ── Get Started Button ──────────────────────────────────
@@ -227,25 +225,6 @@
         });
     }
 
-    // ── Gemini Status ────────────────────────────────────────
-    async function checkLLMStatus() {
-        try {
-            const res = await fetch('/api/health', { cache: 'no-store' });
-            const data = await res.json();
-            const dot = geminiBadge.querySelector('.badge-dot');
-            if (data.geminiEnabled) {
-                dot.classList.add('active');
-                geminiBadge.querySelector('span:last-child').textContent = 'Groq AI Active';
-                geminiBadge.style.borderColor = 'rgba(0, 230, 118, 0.2)';
-            } else {
-                dot.classList.add('inactive');
-                geminiBadge.querySelector('span:last-child').textContent = 'NLP Mode Only';
-            }
-        } catch (e) {
-            geminiBadge.querySelector('.badge-dot').classList.add('inactive');
-            geminiBadge.querySelector('span:last-child').textContent = 'Server Offline';
-        }
-    }
 
     // ── JD Toggle ────────────────────────────────────────────
     function setupJDToggle() {
